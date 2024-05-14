@@ -29,3 +29,6 @@ vault_password_file.txt
 
 # ignore inventory file
 inventory/hosts
+
+# vscode detritus 
+*.vscode
