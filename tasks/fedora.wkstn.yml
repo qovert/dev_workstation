@@ -1,0 +1,66 @@
+---
+- name: Add Microsoft repository
+  ansible.builtin.get_url:
+    url: https://packages.microsoft.com/config/rhel/7/prod.repo
+    dest: /etc/yum.repos.d/microsoft.repo
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Import Microsoft GPG key
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://packages.microsoft.com/keys/microsoft.asc
+  become: true
+
+- name: Add Visual Studio Code repository
+  ansible.builtin.copy:
+    content: |
+      [code]
+      name=Visual Studio Code
+      baseurl=https://packages.microsoft.com/yumrepos/vscode
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+    dest: /etc/yum.repos.d/vscode.repo
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Install 1Password for Fedora
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://downloads.1password.com/linux/keys/1password.asc
+  become: true
+
+- name: Add the 1Password yum repository
+  ansible.builtin.copy:
+    content: |
+      [1password]
+      name=1Password Stable Channel
+      baseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch
+      gpgcheck=1
+      enabled=1
+      gpgkey="https://downloads.1password.com/linux/keys/1password.asc
+    dest: /etc/yum.repos.d/1password.repo
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Install Linux packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ linux_packages }}"
+  become: true
+
+- name: Install Flatpak packages
+  community.general.flatpak:
+    name: "{{ item }}"
+    state: present
+    remote: flathub
+  loop: "{{ linux_flatpak_packages }}"
+  become: true

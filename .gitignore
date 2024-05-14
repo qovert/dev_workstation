@@ -1,0 +1,31 @@
+# Ignore retry files
+*.retry
+
+# Ignore Python compiled files
+__pycache__/
+*.py[cod]
+
+# Ignore temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Ignore system files
+.DS_Store
+
+# Ignore Ansible temporary/working files
+.ansible/
+
+# Ignore Vagrant and Terraform files
+.vagrant/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# Ignore secret files
+secrets.yml
+vault_password_file.txt
+
+# ignore inventory file
+inventory/hosts

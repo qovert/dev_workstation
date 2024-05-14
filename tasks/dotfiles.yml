@@ -1,0 +1,9 @@
+---
+- name: Check if chezmoi is installed
+  ansible.builtin.stat:
+    path: "~/.local/share/chezmoi"
+  register: chezmoi_dir
+
+- name: Install chezmoi
+  ansible.builtin.shell: sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply {{ GITHUB_USERNAME }}
+  when: not chezmoi_dir.stat.exists

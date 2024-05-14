@@ -1,0 +1,20 @@
+---
+- name: My Play
+  hosts: all
+  gather_facts: true
+
+  vars_files:
+    - default.config.yml
+
+  tasks:
+    - name: Load MacOS tasks.
+      ansible.builtin.import_tasks: tasks/mac.pkgs.yml
+      when: ansible_os_family == "Darwin" and configure_macos
+
+    - name: Load DotFile tasks.
+      ansible.builtin.import_tasks: tasks/dotfiles.yml
+      when: configure_dotfiles
+
+    - name: Load Fedora tasks.
+      ansible.builtin.import_tasks: tasks/fedora.wkstn.yml
+      when: configure_linux and ansible_os_family == "RedHat"

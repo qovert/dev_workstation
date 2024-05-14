@@ -1,0 +1,26 @@
+---
+- name: Check if Homebrew is installed
+  ansible.builtin.command: brew --version
+  register: brew_installed
+  failed_when: false
+  changed_when: false
+
+- name: Install Homebrew
+  ansible.builtin.shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  when: brew_installed.rc != 0
+
+- name: Tap for NerdFonts
+  community.general.homebrew_tap:  
+    name: homebrew/cask-fonts
+
+- name: Install MacOS packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ mac_packages + common_packages }}"
+
+- name: Install MacOS Cask packages
+  community.general.homebrew_cask:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ mac_cask_packages }}"
