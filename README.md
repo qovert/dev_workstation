@@ -56,5 +56,5 @@ Configuration options are outlined in the [default.config.yml](./default.config.
 
 - [ ] Follow my own dang advice and don't pipe scripts to shell over the internet 😧
 - [ ] Finish setting up deb stuff.
-- [ ] See if we can extend to Windows. Loooks like chocolatey?
+- [ ] See if we can extend to Windows. Looks like chocolatey?
 - [ ] Add iterm2 and tilix configs to dotfiles
