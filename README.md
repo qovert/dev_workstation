@@ -8,13 +8,13 @@ m     m   mm   mmmmm  mm   m mmmmm  mm   m   mmm
  #   #  #    # #    " #   ## mm#mm  #   ##  "mmm"
  ```
 
-I'm winging it, use anything in here at your own risk! 
+I'm winging it, use anything in here at your own risk! This is a draft and includes some bad practices, like piping scripts to bash. It's mostly just for my use and as an excercise of configuring things with Ansible. 
 
 This repository contains an Ansible playbook for setting up a development workstation on macOS and Linux.
 
 ## Description
 
-The playbook includes tasks for installing and configuring various development tools and utilities.
+The playbook includes tasks for installing and configuring various development tools and utilities. 
 
 ## Requirements
 
