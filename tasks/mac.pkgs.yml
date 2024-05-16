@@ -10,7 +10,7 @@
   when: brew_installed.rc != 0
 
 - name: Tap for NerdFonts
-  community.general.homebrew_tap:  
+  community.general.homebrew_tap:
     name: homebrew/cask-fonts
 
 - name: Install MacOS packages

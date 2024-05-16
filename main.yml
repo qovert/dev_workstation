@@ -1,12 +1,16 @@
 ---
 - name: My Play
-  hosts: all
+  hosts: remote
   gather_facts: true
 
   vars_files:
     - default.config.yml
 
   tasks:
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "ansible_os_family: {{ ansible_os_family }}"
+
     - name: Load MacOS tasks.
       ansible.builtin.import_tasks: tasks/mac.pkgs.yml
       when: ansible_os_family == "Darwin" and configure_macos
@@ -17,4 +21,8 @@
 
     - name: Load Fedora tasks.
       ansible.builtin.import_tasks: tasks/fedora.wkstn.yml
-      when: configure_linux and ansible_os_family == "RedHat"
+      when: ansible_os_family == "RedHat"
+
+    - name: Load Debian tasks.
+      ansible.builtin.import_tasks: tasks/deb.wkstn.yml
+      when: ansible_os_family == "Debian"

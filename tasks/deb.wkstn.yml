@@ -1,0 +1,59 @@
+---
+- name: Get the version of Ubuntu
+  set_fact:
+    ubuntu_version: "{{ ansible_facts['distribution_version'] }}"
+
+- block: 
+    - name: Install pre-requisite packages
+      ansible.builtin.apt:
+        name: ['wget', 'apt-transport-https', 'software-properties-common']
+        state: present
+        update_cache: yes
+
+    - name: Download the Microsoft repository keys
+      ansible.builtin.get_url:
+        url: "https://packages.microsoft.com/config/ubuntu/{{ ubuntu_version }}/packages-microsoft-prod.deb"
+        dest: "/tmp/packages-microsoft-prod.deb"
+
+    - name: Register the Microsoft repository keys
+      ansible.builtin.apt:
+        deb: "/tmp/packages-microsoft-prod.deb"
+        state: present
+
+    - name: Check if Microsoft GPG key is already installed
+      ansible.builtin.stat:
+        path: /etc/apt/keyrings/packages.microsoft.gpg
+      register: microsoft_gpg
+
+    - name: Download Microsoft GPG key
+      ansible.builtin.get_url:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        dest: /tmp/microsoft.asc
+      when: not microsoft_gpg.stat.exists
+
+    - name: Dearmor Microsoft GPG key
+      ansible.builtin.shell:
+        cmd: gpg --dearmor /tmp/microsoft.asc 
+      when: not microsoft_gpg.stat.exists
+
+    - name: Move dearmored key to apt keyring
+      ansible.builtin.command:
+        cmd: install -D -o root -g root -m 644 /tmp/microsoft.asc.gpg /etc/apt/keyrings/packages.microsoft.gpg
+      when: not microsoft_gpg.stat.exists
+
+    - name: Add Microsft VSCode apt repo
+      ansible.builtin.copy: 
+        content: |
+          deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main
+        dest: /etc/apt/sources.list.d/vscode.list
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install Linux apt packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop: "{{ debian_packages }}"
+  become: true

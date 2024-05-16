@@ -26,20 +26,27 @@ mac_cask_packages:
   - firefox
   - iterm2
   - visual-studio-code
-
-common_packages:
-  #- git
-  #- zsh
   - firefox
 
-linux_packages:
-  - distrobox
+debian_packages:
+  - flatpak
+  - bpytop
+  - powershell
+  - bpytop
+  - python3-pip
+  - tilix
+  - zsh
+
+redhat_packages:
   - flatpak
   - bpytop
   - powershell
   - bpytop
   - 1password
   - 1password-cli
+  - python3-pip
+  - tilix
+  - zsh
 
 linux_flatpak_packages:
   - md.obsidian.Obsidian
