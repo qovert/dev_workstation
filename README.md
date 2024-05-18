@@ -40,7 +40,16 @@ ansible-playbook playbook.yml -i inventory/hosts
 
 ## Configuration
 
-Configuration options are outlined in the [default.config.yml](./default.config.yml). 
+Configuration options are outlined in the [default.config.yml](./default.config.yml). Inventory file example: 
+
+```
+[local]
+localhost   ansible_connection=local
+
+[remotes]
+169.254.0.200   ansible_user=bob
+cool_dev_vm.contoso.com ansible_user=bob
+```
 
 ### Notable options:
 
@@ -58,3 +67,4 @@ Configuration options are outlined in the [default.config.yml](./default.config.
 - [ ] Finish setting up deb stuff.
 - [ ] See if we can extend to Windows. Looks like chocolatey?
 - [ ] Add iterm2 and tilix configs to dotfiles
+- [ ] Oh-my-posh install 
