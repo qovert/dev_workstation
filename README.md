@@ -10,7 +10,7 @@ m     m   mm   mmmmm  mm   m mmmmm  mm   m   mmm
 
 I'm winging it, use anything in here at your own risk! This is a draft and includes some bad practices, like piping remote scripts to bash. It's mostly just for my use and as an excercise of configuring things with Ansible. 
 
-This repository contains an Ansible playbook for setting up a development workstation on macOS and Linux.
+This repository contains an Ansible playbook for setting up a development workstation on macOS and Linux. It's very much a work in progress at the moment, and even when functionally done it's likely to change significantly.
 
 ## Description
 
