@@ -3,17 +3,15 @@ downloads: ~/.ansible-downloads/
 
 # Options: 
 configure_dotfiles: true
-configure_macos: false
+configure_macos: true
 configure_linux: true
 
 GITHUB_USERNAME: "qovert"
 
 mac_packages:
-  - docker-compose
   #- 1password-cli
   - gh
   - oh-my-posh
-  - font-fira-code
   - ncdu
   - tree
   - pstree
@@ -26,27 +24,26 @@ mac_cask_packages:
   - firefox
   - iterm2
   - visual-studio-code
+
+common_packages:
+  #- git
+  #- zsh
   - firefox
 
-debian_packages:
-  - flatpak
-  - bpytop
-  - powershell
-  - bpytop
-  - python3-pip
-  - tilix
-  - zsh
-
-redhat_packages:
+linux_packages:
+  - distrobox
   - flatpak
   - bpytop
   - powershell
   - bpytop
   - 1password
   - 1password-cli
-  - python3-pip
-  - tilix
+  - code
+  - tree
   - zsh
+  - direnv
+  - gnome-tweaks
+  - vim
 
 linux_flatpak_packages:
   - md.obsidian.Obsidian

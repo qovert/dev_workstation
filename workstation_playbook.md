@@ -8,20 +8,20 @@ This playbook is idempotent, and should work with PoP!_OS, Fedora 39+, and ideal
   - Homebrew
   - Docker / Docker Compose
   - Firefox
-- Ansible
-- Git
-- Zsh
-- Oh My Posh
-- PowerShell 7+
+  - Ansible
+  - Git
+  - Zsh
+  - Oh My Posh
+  - PowerShell 7+
 - **Linux only**
   - Distrobox
   - flatpak
-- Visual Studio Code
-- Microsoft Edge
-- Wireguard client
+  - Visual Studio Code
+  - Microsoft Edge
+  - Wireguard client
 - **Personal devices only**
   - Nextcloud client
-- Utils: nmap, vim, htop, wget, tmux, ncdu, tree
+  - Utils: nmap, vim, htop, wget, tmux, ncdu, tree
 
 ## This playbook will also configure the following
 
