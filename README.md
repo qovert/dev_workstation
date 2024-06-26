@@ -64,7 +64,9 @@ cool_dev_vm.contoso.com ansible_user=bob
 ## ToDo
 
 - [ ] Follow my own dang advice and don't pipe scripts to shell over the internet 😧
-- [ ] Finish setting up deb stuff.
+- [x] Finish setting up main deb stuff.
+- [ ] Add the Flatpak tasks
+- [ ] Deal with different package naming between fedora/deb (less of an issue than I thought...)
 - [ ] See if we can extend to Windows. Looks like chocolatey?
 - [ ] Add iterm2 and tilix configs to dotfiles
 - [ ] Oh-my-posh install 
