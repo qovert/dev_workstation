@@ -80,6 +80,15 @@
         cmd: install -D -o root -g root -m 644 /tmp/1password.asc.gpg /etc/apt/keyrings/1password-archive-keyring.gpg
       when: not one_password_gpg.stat.exists
 
+    - name: Add Microsft Edge apt repo
+      ansible.builtin.copy: 
+        content: |
+          deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main'
+        dest: /etc/apt/sources.list.d/1password.list
+        owner: root
+        group: root
+        mode: '0644'
+
     - name: Install Linux apt packages
       ansible.builtin.apt:
         name: "{{ item }}"
