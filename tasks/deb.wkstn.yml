@@ -62,23 +62,23 @@
     - name: Check if Microsoft GPG key is already installed - 1Password
       ansible.builtin.stat:
         path: /etc/apt/keyrings/1password-archive-keyring.gpg
-      register: 1password_gpg
+      register: one_password_gpg
 
     - name: Add the 1Password apt repo key
       ansible.builtin.get_url:
         url: https://downloads.1password.com/linux/keys/1password.asc
         dest: /tmp/1password.asc
-      when: not 1password_gpg.stat.exists
+      when: not one_password_gpg.stat.exists
 
     - name: Dearmor 1password GPG key - 1Password
       ansible.builtin.shell:
         cmd: gpg --dearmor /tmp/1password.asc 
-      when: not 1password_gpg.stat.exists
+      when: not one_password_gpg.stat.exists
 
     - name: Move dearmored key to apt keyring - 1Password
       ansible.builtin.command:
         cmd: install -D -o root -g root -m 644 /tmp/1password.asc.gpg /etc/apt/keyrings/1password-archive-keyring.gpg
-      when: not 1password_gpg.stat.exists
+      when: not one_password_gpg.stat.exists
 
     - name: Install Linux apt packages
       ansible.builtin.apt:
