@@ -64,5 +64,5 @@
         name: "{{ item }}"
         state: present
         update_cache: true
-      loop: "{{ debian_packages }}"
+      loop: "{{ linux_packages }}"
   become: true

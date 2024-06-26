@@ -26,14 +26,14 @@ mac_cask_packages:
   - visual-studio-code
 
 common_packages:
-  #- git
-  #- zsh
+  - git
+  - zsh
   - firefox
 
 linux_packages:
-  - distrobox
+  #- distrobox
   - flatpak
-  - bpytop
+  - tilix
   - powershell
   - bpytop
   - 1password
