@@ -48,5 +48,5 @@
   ansible.builtin.package:
     name: "{{ item }}"
     state: present
-  loop: "{{ redhat_packages }}"
+  loop: "{{ linux_packages }}"
   become: true
