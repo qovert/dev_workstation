@@ -7,3 +7,17 @@
 - name: Install chezmoi
   ansible.builtin.shell: sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply {{ GITHUB_USERNAME }}
   when: not chezmoi_dir.stat.exists
+
+- name: Create home bin
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/bin"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: '0700'
+
+- name: Create pwsh script dir
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/bin/pwsh"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: '0700'
