@@ -8,38 +8,20 @@
   ansible.builtin.shell: sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply {{ GITHUB_USERNAME }}
   when: not chezmoi_dir.stat.exists
 
-- name: Create home bin
+- name: Create necessary directories
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/bin"
+    path: "{{ item.path }}"
     state: directory
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
     mode: '0700'
+  loop:
+    - { path: "{{ ansible_env.HOME }}/bin/pwsh" }
+    - { path: "{{ ansible_env.HOME }}/.config/omp_themes" }
 
-- name: Create pwsh script dir
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/bin/pwsh"
-    state: directory
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
-    mode: '0700'
-
-- name: Create OMP themes folder
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/omp_themes"
-    state: directory
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
-    mode: '0700'
-
-- name: Download ZSH OMP theme
+- name: Download OMP themes
   ansible.builtin.get_url:
-    url: "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/kali.omp.json"
-    dest: "{{ ansible_env.HOME }}/.config/omp_themes"
+    url: "{{ item.url }}"
+    dest: "{{ ansible_env.HOME }}/.config/omp_themes/{{ item.dest }}"
     mode: '0644'
-
-- name: Download PWSH OMP theme
-  ansible.builtin.get_url:
-    url: "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/microverse-power.omp.json"
-    dest: "{{ ansible_env.HOME }}/.config/omp_themes"
-    mode: '0644'
+  loop:
+    - { url: "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/kali.omp.json", dest: "kali.omp.json" }
+    - { url: "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/microverse-power.omp.json", dest: "microverse-power.omp.json" }

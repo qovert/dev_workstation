@@ -1,0 +1,8 @@
+---
+- name: Set default AppleKeyPress in VSCode to support vim extention
+  community.general.osx_defaults:
+    domain: com.microsoft.VSCode
+    key: ApplePressAndHoldEnabled
+    type: bool
+    value: false
+    state: present

@@ -10,13 +10,18 @@
   when: brew_installed.rc != 0
 
 - name: Install MacOS packages
-  ansible.builtin.package:
-    name: "{{ item }}"
+  community.general.homebrew:
+    name: "{{ pkg }}"
     state: present
   loop: "{{ mac_packages + common_packages }}"
+  loop_control:
+    loop_var: pkg
 
 - name: Install MacOS Cask packages
-  community.general.homebrew_cask:
-    name: "{{ item }}"
+  community.general.homebrew:
+    name: "{{ cask_pkg }}"
     state: present
+    install_options: cask
   loop: "{{ mac_cask_packages }}"
+  loop_control:
+    loop_var: cask_pkg

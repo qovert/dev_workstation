@@ -9,28 +9,21 @@ configure_linux: true
 GITHUB_USERNAME: "qovert"
 
 mac_packages:
-  #- 1password-cli
   - gh
   - oh-my-posh
   - ncdu
   - tree
   - pstree
-  #- font-mononoki-nerd-font
-  #- font-hack-nerd-font
-  
-mac_cask_packages:
   - docker
   - powershell
   - font-fira-code
   - obsidian
-  - firefox
   - iterm2
   - visual-studio-code
 
 common_packages:
   - git
   - zsh
-  - firefox
 
 linux_packages:
   #- distrobox

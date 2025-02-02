@@ -1,3 +1,32 @@
+#---
+#- name: My Play
+#  hosts: all
+#  gather_facts: true
+#  vars_files:
+#    - default.config.yml
+#
+#  tasks:
+#    - name: Debug
+#      ansible.builtin.debug:
+#        msg: "ansible_os_family: {{ ansible_os_family }}"
+#
+#    - name: Load MacOS tasks.
+#      ansible.builtin.import_tasks: tasks/mac.pkgs.yml
+#      when: ansible_os_family == "Darwin" and configure_macos
+#
+#    - name: Load DotFile tasks.
+#      ansible.builtin.import_tasks: tasks/dotfiles.yml
+#      when: configure_dotfiles
+#
+#    - name: Load Fedora tasks.
+#      ansible.builtin.import_tasks: tasks/fedora.wkstn.yml
+#      when: ansible_os_family == "RedHat"
+#
+#    - name: Load Debian tasks.
+#      ansible.builtin.import_tasks: tasks/deb.wkstn.yml
+#      when: ansible_os_family == "Debian"
+
+
 ---
 - name: My Play
   hosts: all
@@ -11,18 +40,12 @@
       ansible.builtin.debug:
         msg: "ansible_os_family: {{ ansible_os_family }}"
 
-    - name: Load MacOS tasks.
-      ansible.builtin.import_tasks: tasks/mac.pkgs.yml
-      when: ansible_os_family == "Darwin" and configure_macos
-
-    - name: Load DotFile tasks.
-      ansible.builtin.import_tasks: tasks/dotfiles.yml
-      when: configure_dotfiles
-
-    - name: Load Fedora tasks.
-      ansible.builtin.import_tasks: tasks/fedora.wkstn.yml
-      when: ansible_os_family == "RedHat"
-
-    - name: Load Debian tasks.
-      ansible.builtin.import_tasks: tasks/deb.wkstn.yml
-      when: ansible_os_family == "Debian"
+    - name: Load tasks based on conditions
+      ansible.builtin.include_tasks: "{{ item.file }}"
+      when: item.condition
+      loop:
+        - { file: "tasks/dotfiles.yml", condition: configure_dotfiles }
+        - { file: "tasks/mac.pkgs.yml", condition: ansible_os_family == "Darwin" and configure_macos }
+        - { file: "tasks/fedora.wkstn.yml", condition: ansible_os_family == "RedHat" }
+        - { file: "tasks/deb.wkstn.yml", condition: ansible_os_family == "Debian" }
+        - { file: "tasks/mac.defaults.yml", condition: ansible_os_family == "Darwin" and configure_macos }

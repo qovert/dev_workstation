@@ -1,6 +1,6 @@
 # Ansible playbook to setup my personal laptop
 
-This playbook is idempotent, and should work with PoP!_OS, Fedora 39+, and ideally MacOS. If there's interest, I can add support for Windows 10+ as well.
+This playbook is idempotent, and should work with PoP!_OS, Fedora 39+, and ideally MacOS. If there's interest, I can add try to support for Windows 10+ as well.
 
 ## This playbook will install the following
 
