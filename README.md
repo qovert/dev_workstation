@@ -12,6 +12,8 @@
 [![Ansible Lint](https://img.shields.io/badge/ansible--lint-production-brightgreen)](https://ansible.readthedocs.io/projects/lint/)
 [![YAML Lint](https://img.shields.io/badge/yaml--lint-passing-brightgreen)](https://yamllint.readthedocs.io/)
 
+This is a hobby project that I'm using to make my life easier and do weird things with Ansible. It may or may not be safe to run, and may or may not do bizarre things to your profile. Fork, run, enjoy at your own risk! 
+
 A robust, cross-platform Ansible playbook for automated development workstation setup with comprehensive testing, linting, and CI/CD integration.
 
 ## ✨ Features
@@ -157,6 +159,7 @@ ansible_ssh_control_persist: 300s
 ### Package Configuration
 
 #### macOS Packages (Homebrew)
+
 ```yaml
 homebrew_installed_packages:
   - gh                      # GitHub CLI
@@ -174,6 +177,7 @@ homebrew_cask_apps:
 ```
 
 #### Mac App Store Apps
+
 ```yaml
 mas_installed_apps:
   - {id: 497799835, name: "Xcode"}
@@ -181,6 +185,7 @@ mas_installed_apps:
 ```
 
 #### Linux Packages
+
 ```yaml
 linux_packages:
   - flatpak               # Universal package system
@@ -199,6 +204,7 @@ linux_flatpak_packages:
 ```
 
 #### Dock Configuration (macOS)
+
 ```yaml
 dockitems_remove:
   - Launchpad
@@ -217,7 +223,7 @@ dockitems_persist:
 
 ## 📁 Project Structure
 
-```
+```shell
 dev_workstation/
 ├── .github/workflows/       # CI/CD workflows
 │   └── ci.yml              # Main CI pipeline
