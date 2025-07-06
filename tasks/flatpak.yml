@@ -3,6 +3,9 @@
   ansible.builtin.command:
     cmd: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
   become: true
+  register: flathub_result
+  changed_when: "'already exists' not in flathub_result.stderr"
+  failed_when: flathub_result.rc != 0 and 'already exists' not in flathub_result.stderr
 
 - name: Install Flatpak packages
   community.general.flatpak:

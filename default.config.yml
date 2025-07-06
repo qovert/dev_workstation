@@ -1,13 +1,60 @@
 ---
 downloads: ~/.ansible-downloads/
 
-# Options: 
+# Main configuration flags
 configure_dotfiles: true
 configure_macos: true
 configure_linux: true
+configure_mas: true
+configure_dock: true
 
 GITHUB_USERNAME: "qovert"
 
+# geerlingguy.mac.homebrew role variables
+homebrew_installed_packages:
+  - gh
+  - oh-my-posh
+  - ncdu
+  - tree
+  - pstree
+  - docker
+  - powershell
+  - git
+  - zsh
+
+homebrew_cask_apps:
+  - obsidian
+  - iterm2
+  - visual-studio-code
+  - font-fira-code
+
+# geerlingguy.mac.mas role variables
+mas_installed_apps:
+  - {id: 497799835, name: "Xcode"}
+  - {id: 1451685025, name: "WireGuard"}
+
+# geerlingguy.mac.dock role variables
+dockitems_remove:
+  - Launchpad
+  - TV
+  - Podcasts
+  - 'App Store'
+
+dockitems_persist:
+  - name: "Finder"
+    path: "/System/Applications/Finder.app/"
+    pos: 1
+  - name: "iTerm"
+    path: "/Applications/iTerm.app/"
+    pos: 2
+  - name: "Visual Studio Code"
+    path: "/Applications/Visual Studio Code.app/"
+    pos: 3
+  - name: "Obsidian"
+    path: "/Applications/Obsidian.app/"
+    pos: 4
+
+# Legacy variables for backward compatibility
 mac_packages:
   - gh
   - oh-my-posh
@@ -26,7 +73,7 @@ common_packages:
   - zsh
 
 linux_packages:
-  #- distrobox
+  # - distrobox
   - flatpak
   - tilix
   - powershell

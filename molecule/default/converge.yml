@@ -1,0 +1,43 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+  
+  vars_files:
+    - ../../default.config.yml
+    
+  vars:
+    # Override for testing
+    configure_dotfiles: true
+    configure_linux: true
+    configure_macos: false
+    github_username: "test-user"
+    
+  pre_tasks:
+    - name: Update apt cache (Ubuntu/Debian)
+      ansible.builtin.apt:
+        update_cache: true
+      when: ansible_os_family == "Debian"
+      become: true
+      
+    - name: Install required packages for testing
+      ansible.builtin.package:
+        name:
+          - curl
+          - git
+        state: present
+      become: true
+
+  tasks:
+    - name: Include dotfiles tasks
+      ansible.builtin.include_tasks: ../../tasks/dotfiles.yml
+      
+    - name: Include OS-specific tasks
+      ansible.builtin.include_tasks: "../../tasks/{{ item }}"
+      loop:
+        - fedora.wkstn.yml
+        - deb.wkstn.yml
+      when: 
+        - configure_linux | default(false)
+        - (item == 'fedora.wkstn.yml' and ansible_os_family == 'RedHat') or
+          (item == 'deb.wkstn.yml' and ansible_os_family == 'Debian')

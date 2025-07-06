@@ -1,0 +1,64 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  
+  tasks:
+    - name: Check if chezmoi binary exists (Linux)
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.local/bin/chezmoi"
+      register: chezmoi_binary_linux
+      when: ansible_os_family != "Darwin"
+      
+    - name: Verify chezmoi is installed (Linux)
+      ansible.builtin.assert:
+        that:
+          - chezmoi_binary_linux.stat.exists
+          - chezmoi_binary_linux.stat.executable
+        fail_msg: "chezmoi binary not found or not executable"
+      when: ansible_os_family != "Darwin"
+      
+    - name: Check if chezmoi data directory exists
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.local/share/chezmoi"
+      register: chezmoi_data_dir
+      
+    - name: Verify chezmoi is initialized
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.local/share/chezmoi/.git"
+      register: chezmoi_git_dir
+      
+    - name: Check oh-my-posh themes directory
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.config/omp_themes"
+      register: omp_themes_dir
+      
+    - name: Verify oh-my-posh themes are downloaded
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.config/omp_themes/{{ item }}"
+      register: theme_files
+      loop:
+        - kali.omp.json
+        - microverse-power.omp.json
+        
+    - name: Assert all verification checks pass
+      ansible.builtin.assert:
+        that:
+          - chezmoi_data_dir.stat.exists
+          - chezmoi_git_dir.stat.exists
+          - omp_themes_dir.stat.exists
+          - theme_files.results | selectattr('stat.exists') | list | length == 2
+        fail_msg: "One or more verification checks failed"
+        
+    - name: Test chezmoi functionality
+      ansible.builtin.command: "{{ ansible_env.HOME }}/.local/bin/chezmoi --version"
+      register: chezmoi_version
+      when: ansible_os_family != "Darwin"
+      changed_when: false
+      
+    - name: Verify chezmoi version output
+      ansible.builtin.assert:
+        that:
+          - "'chezmoi version' in chezmoi_version.stdout"
+        fail_msg: "chezmoi version command failed"
+      when: ansible_os_family != "Darwin"

@@ -1,51 +1,111 @@
-#---
-#- name: My Play
-#  hosts: all
-#  gather_facts: true
-#  vars_files:
-#    - default.config.yml
-#
-#  tasks:
-#    - name: Debug
-#      ansible.builtin.debug:
-#        msg: "ansible_os_family: {{ ansible_os_family }}"
-#
-#    - name: Load MacOS tasks.
-#      ansible.builtin.import_tasks: tasks/mac.pkgs.yml
-#      when: ansible_os_family == "Darwin" and configure_macos
-#
-#    - name: Load DotFile tasks.
-#      ansible.builtin.import_tasks: tasks/dotfiles.yml
-#      when: configure_dotfiles
-#
-#    - name: Load Fedora tasks.
-#      ansible.builtin.import_tasks: tasks/fedora.wkstn.yml
-#      when: ansible_os_family == "RedHat"
-#
-#    - name: Load Debian tasks.
-#      ansible.builtin.import_tasks: tasks/deb.wkstn.yml
-#      when: ansible_os_family == "Debian"
-
-
 ---
-- name: My Play
+- name: Development Workstation Setup
   hosts: all
   gather_facts: true
+  strategy: linear
+  serial: 1
 
   vars_files:
     - default.config.yml
 
-  tasks:
-    - name: Debug
-      ansible.builtin.debug:
-        msg: "ansible_os_family: {{ ansible_os_family }}"
+  vars:
+    # Global retry settings
+    retry_count: 3
+    retry_delay: 5
 
-    - name: Load tasks based on conditions
-      ansible.builtin.include_tasks: "{{ item.file }}"
-      when: item.condition
-      loop:
-        - { file: "tasks/dotfiles.yml", condition: configure_dotfiles }
-        - { file: "tasks/mac.pkgs.yml", condition: ansible_os_family == "Darwin" and configure_macos }
-        - { file: "tasks/fedora.wkstn.yml", condition: ansible_os_family == "RedHat" }
-        - { file: "tasks/deb.wkstn.yml", condition: ansible_os_family == "Debian" }
-        - { file: "tasks/mac.defaults.yml", condition: ansible_os_family == "Darwin" and configure_macos }
+    # Performance settings
+    ansible_python_interpreter: auto_silent
+
+    # Connection optimizations
+    ansible_ssh_pipelining: true
+    ansible_ssh_control_persist: 300s
+
+    # Cache settings
+    fact_caching: jsonfile
+    fact_caching_connection: /tmp/ansible_facts_cache
+    fact_caching_timeout: 3600
+
+  pre_tasks:
+    - name: Debug OS information
+      ansible.builtin.debug:
+        msg:
+          - "ansible_os_family: {{ ansible_os_family }}"
+          - "ansible_distribution: {{ ansible_distribution }}"
+          - "ansible_distribution_major_version: {{ ansible_distribution_major_version }}"
+          - "ansible_system: {{ ansible_system }}"
+
+    - name: Set OS-specific facts
+      ansible.builtin.set_fact:
+        is_macos: "{{ ansible_os_family == 'Darwin' }}"
+        is_fedora: >-
+          {{ ansible_distribution == 'Fedora' or
+             ansible_distribution == 'RedHat' or
+             ansible_distribution == 'CentOS' }}
+        is_debian: >-
+          {{ ansible_distribution == 'Debian' or
+             ansible_distribution == 'Ubuntu' }}
+        is_linux: "{{ ansible_system == 'Linux' }}"
+
+  roles:
+    - role: geerlingguy.mac.homebrew
+      when:
+        - is_macos
+        - configure_macos | default(false)
+    - role: geerlingguy.mac.mas
+      when:
+        - is_macos
+        - configure_macos | default(false)
+        - configure_mas | default(false)
+    - role: geerlingguy.mac.dock
+      when:
+        - is_macos
+        - configure_macos | default(false)
+        - configure_dock | default(false)
+
+  tasks:
+    - name: Debug OS-specific task execution
+      ansible.builtin.debug:
+        msg:
+          - "Will execute macOS tasks: {{ is_macos and (configure_macos | default(false)) }}"
+          - >-
+            Will execute Fedora/RHEL tasks:
+            {{ (is_fedora or ansible_os_family == 'RedHat') and
+               (configure_linux | default(false)) }}
+          - >-
+            Will execute Debian/Ubuntu tasks:
+            {{ (is_debian or ansible_os_family == 'Debian') and
+               (configure_linux | default(false)) }}
+          - "Will execute dotfiles tasks: {{ configure_dotfiles | default(false) }}"
+      tags: always
+
+    - name: Load dotfiles tasks
+      ansible.builtin.include_tasks: tasks/dotfiles.yml
+      when: configure_dotfiles | default(false)
+      tags: dotfiles
+
+    - name: Load macOS defaults tasks
+      ansible.builtin.include_tasks: tasks/mac.defaults.yml
+      when:
+        - is_macos
+        - configure_macos | default(false)
+      tags:
+        - macos
+        - defaults
+
+    - name: Load Fedora/RHEL tasks
+      ansible.builtin.include_tasks: tasks/fedora.wkstn.yml
+      when:
+        - is_fedora or ansible_os_family == "RedHat"
+        - configure_linux | default(false)
+      tags:
+        - linux
+        - fedora
+
+    - name: Load Debian/Ubuntu tasks
+      ansible.builtin.include_tasks: tasks/deb.wkstn.yml
+      when:
+        - is_debian or ansible_os_family == "Debian"
+        - configure_linux | default(false)
+      tags:
+        - linux
+        - debian

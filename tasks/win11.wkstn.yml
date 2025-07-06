@@ -1,18 +1,18 @@
 ---
 - name: Install Chocolatey package manager
-  win_chocolatey:
+  chocolatey.chocolatey.win_chocolatey:
     name: chocolatey
     state: present
 
 - name: Install packages using Chocolatey
-  win_chocolatey:
+  chocolatey.chocolatey.win_chocolatey:
     name:
       - package1
       - package2
       - package3
     state: present
 
-- name: Installs sshd service 
+- name: Installs sshd service
   ansible.windows.win_feature:
     name: OpenSSH.Server
     state: present

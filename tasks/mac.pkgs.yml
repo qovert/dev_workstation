@@ -8,6 +8,8 @@
 - name: Install Homebrew
   ansible.builtin.shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   when: brew_installed.rc != 0
+  register: homebrew_install_result
+  changed_when: brew_installed.rc != 0
 
 - name: Install MacOS packages
   community.general.homebrew:

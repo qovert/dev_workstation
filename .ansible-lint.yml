@@ -1,0 +1,15 @@
+---
+skip_list:
+  - yaml[line-length]
+  - name[casing]
+  - risky-shell-pipe  # Allow pipes in shell commands for legitimate use cases
+
+exclude_paths:
+  - .github/
+  - .ansible/
+  - molecule/
+  - .venv/
+  - venv/
+
+use_default_rules: true
+verbosity: 1

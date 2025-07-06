@@ -1,27 +1,106 @@
 ---
-- name: Check if chezmoi is installed
-  ansible.builtin.stat:
-    path: "~/.local/share/chezmoi"
-  register: chezmoi_dir
+- name: Set chezmoi paths based on OS
+  ansible.builtin.set_fact:
+    chezmoi_bin_path: >-
+      {{ '/opt/homebrew/bin/chezmoi'
+         if (ansible_os_family == 'Darwin' and ansible_architecture == 'arm64')
+         else '/usr/local/bin/chezmoi'
+         if ansible_os_family == 'Darwin'
+         else ansible_env.HOME + '/.local/bin/chezmoi' }}
+    chezmoi_data_path: "{{ ansible_env.HOME }}/.local/share/chezmoi"
 
-- name: Install chezmoi
-  ansible.builtin.shell: sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply {{ GITHUB_USERNAME }}
-  when: not chezmoi_dir.stat.exists
+- name: Check if chezmoi binary exists
+  ansible.builtin.stat:
+    path: "{{ chezmoi_bin_path }}"
+  register: chezmoi_binary
+
+- name: Install chezmoi via Homebrew (macOS)
+  community.general.homebrew:
+    name: chezmoi
+    state: present
+  when:
+    - ansible_os_family == "Darwin"
+    - not chezmoi_binary.stat.exists
+
+- name: Install chezmoi via script (Linux)
+  ansible.builtin.shell: sh -c "$(curl -fsLS get.chezmoi.io)"
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/chezmoi"
+  when:
+    - ansible_os_family != "Darwin"
+    - not chezmoi_binary.stat.exists
+  retries: "{{ retry_count | default(3) }}"
+  delay: "{{ retry_delay | default(5) }}"
+
+- name: Check if chezmoi is already initialized
+  ansible.builtin.stat:
+    path: "{{ chezmoi_data_path }}/.git"
+  register: chezmoi_initialized
+
+- name: Initialize chezmoi for user
+  ansible.builtin.command: "{{ chezmoi_bin_path }} init {{ GITHUB_USERNAME }}"
+  when:
+    - chezmoi_binary.stat.exists
+    - not chezmoi_initialized.stat.exists
+  register: chezmoi_init_result
+  changed_when: chezmoi_init_result.rc == 0
+
+- name: Apply chezmoi configuration
+  ansible.builtin.command: "{{ chezmoi_bin_path }} apply"
+  when:
+    - chezmoi_binary.stat.exists
+    - chezmoi_initialized.stat.exists
+  register: chezmoi_apply_result
+  changed_when: "'updated' in chezmoi_apply_result.stdout or 'modified' in chezmoi_apply_result.stdout"
+  failed_when: false
 
 - name: Create necessary directories
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
-    mode: '0700'
+    mode: '0755'
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
   loop:
-    - { path: "{{ ansible_env.HOME }}/bin/pwsh" }
-    - { path: "{{ ansible_env.HOME }}/.config/omp_themes" }
+    - {path: "{{ ansible_env.HOME }}/bin"}
+    - {path: "{{ ansible_env.HOME }}/.config/omp_themes"}
+    - {path: "{{ ansible_env.HOME }}/.local/bin", when: "{{ ansible_os_family != 'Darwin' }}"}
+  when: item.when | default(true)
 
 - name: Download OMP themes
   ansible.builtin.get_url:
     url: "{{ item.url }}"
     dest: "{{ ansible_env.HOME }}/.config/omp_themes/{{ item.dest }}"
     mode: '0644'
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    force: false
+    backup: true
   loop:
-    - { url: "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/kali.omp.json", dest: "kali.omp.json" }
-    - { url: "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/microverse-power.omp.json", dest: "microverse-power.omp.json" }
+    - url: >-
+        https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/kali.omp.json
+      dest: "kali.omp.json"
+    - url: >-
+        https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/microverse-power.omp.json
+      dest: "microverse-power.omp.json"
+  retries: "{{ retry_count | default(3) }}"
+  delay: "{{ retry_delay | default(5) }}"
+
+- name: Ensure chezmoi binary is executable
+  ansible.builtin.file:
+    path: "{{ chezmoi_bin_path }}"
+    mode: '0755'
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+  when:
+    - chezmoi_binary.stat.exists
+    - ansible_os_family != "Darwin"  # Homebrew manages permissions on macOS
+
+- name: Update chezmoi to latest version (if already installed)
+  ansible.builtin.command: "{{ chezmoi_bin_path }} upgrade"
+  when:
+    - chezmoi_binary.stat.exists
+    - chezmoi_initialized.stat.exists
+  register: chezmoi_upgrade_result
+  changed_when: "'upgraded' in chezmoi_upgrade_result.stdout"
+  failed_when: false

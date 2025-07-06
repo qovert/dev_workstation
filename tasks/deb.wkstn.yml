@@ -1,9 +1,11 @@
 ---
 - name: Get the version of Ubuntu
-  set_fact:
+  ansible.builtin.set_fact:
     ubuntu_version: "{{ ansible_facts['distribution_version'] }}"
 
-- block: 
+- name: Setup Microsoft repositories and packages
+  become: true
+  block:
     - name: Install pre-requisite packages
       ansible.builtin.apt:
         name: ['wget', 'apt-transport-https', 'software-properties-common']
@@ -14,6 +16,7 @@
       ansible.builtin.get_url:
         url: "https://packages.microsoft.com/config/ubuntu/{{ ubuntu_version }}/packages-microsoft-prod.deb"
         dest: "/tmp/packages-microsoft-prod.deb"
+        mode: '0644'
 
     - name: Register the Microsoft repository keys - VS Code
       ansible.builtin.apt:
@@ -29,31 +32,36 @@
       ansible.builtin.get_url:
         url: https://packages.microsoft.com/keys/microsoft.asc
         dest: /tmp/microsoft.asc
+        mode: '0644'
       when: not microsoft_gpg.stat.exists
 
     - name: Dearmor Microsoft GPG key - VS Code
-      ansible.builtin.shell:
-        cmd: gpg --dearmor /tmp/microsoft.asc 
+      ansible.builtin.command:
+        cmd: gpg --dearmor --output /tmp/microsoft.asc.gpg /tmp/microsoft.asc
       when: not microsoft_gpg.stat.exists
+      changed_when: not microsoft_gpg.stat.exists
 
     - name: Move dearmored key to apt keyring - VS Code
       ansible.builtin.command:
         cmd: install -D -o root -g root -m 644 /tmp/microsoft.asc.gpg /etc/apt/keyrings/packages.microsoft.gpg
       when: not microsoft_gpg.stat.exists
+      changed_when: not microsoft_gpg.stat.exists
 
     - name: Add Microsft VSCode apt repo
-      ansible.builtin.copy: 
+      ansible.builtin.copy:
         content: |
-          deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main
+          deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] \
+          https://packages.microsoft.com/repos/code stable main
         dest: /etc/apt/sources.list.d/vscode.list
         owner: root
         group: root
         mode: '0644'
 
     - name: Add Microsft Edge apt repo
-      ansible.builtin.copy: 
+      ansible.builtin.copy:
         content: |
-          deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/edge stable main
+          deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] \
+          https://packages.microsoft.com/repos/edge stable main
         dest: /etc/apt/sources.list.d/microsoft-edge.list
         owner: root
         group: root
@@ -68,22 +76,26 @@
       ansible.builtin.get_url:
         url: https://downloads.1password.com/linux/keys/1password.asc
         dest: /tmp/1password.asc
+        mode: '0644'
       when: not one_password_gpg.stat.exists
 
     - name: Dearmor 1password GPG key - 1Password
-      ansible.builtin.shell:
-        cmd: gpg --dearmor /tmp/1password.asc 
+      ansible.builtin.command:
+        cmd: gpg --dearmor --output /tmp/1password.asc.gpg /tmp/1password.asc
       when: not one_password_gpg.stat.exists
+      changed_when: not one_password_gpg.stat.exists
 
     - name: Move dearmored key to apt keyring - 1Password
       ansible.builtin.command:
         cmd: install -D -o root -g root -m 644 /tmp/1password.asc.gpg /etc/apt/keyrings/1password-archive-keyring.gpg
       when: not one_password_gpg.stat.exists
+      changed_when: not one_password_gpg.stat.exists
 
     - name: Add 1password apt repo
-      ansible.builtin.copy: 
+      ansible.builtin.copy:
         content: |
-          deb [arch=amd64 signed-by=/etc/apt/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main
+          deb [arch=amd64 signed-by=/etc/apt/keyrings/1password-archive-keyring.gpg] \
+          https://downloads.1password.com/linux/debian/amd64 stable main
         dest: /etc/apt/sources.list.d/1password.list
         owner: root
         group: root
@@ -95,4 +107,3 @@
         state: present
         update_cache: true
       loop: "{{ linux_packages }}"
-  become: true

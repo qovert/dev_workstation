@@ -2,3 +2,5 @@
 collections:
   - name: community.general
     version: ">=3.0.0"
+  - name: geerlingguy.mac
+    version: ">=3.0.0"

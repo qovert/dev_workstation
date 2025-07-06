@@ -46,7 +46,10 @@
 
 - name: Install Yum packages
   ansible.builtin.package:
-    name: "{{ item }}"
+    name: "{{ linux_packages }}"
     state: present
-  loop: "{{ linux_packages }}"
   become: true
+  retries: "{{ retry_count | default(3) }}"
+  delay: "{{ retry_delay | default(5) }}"
+  register: package_install_result
+  until: package_install_result is succeeded
