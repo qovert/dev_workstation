@@ -2,7 +2,7 @@
 skip_list:
   - yaml[line-length]
   - name[casing]
-  - risky-shell-pipe  # Allow pipes in shell commands for legitimate use cases
+  - risky-shell-pipe  # Allow pipes in shell commands for "legitimate" use cases
 
 exclude_paths:
   - .github/

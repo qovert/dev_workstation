@@ -12,7 +12,7 @@
 [![Ansible Lint](https://img.shields.io/badge/ansible--lint-production-brightgreen)](https://ansible.readthedocs.io/projects/lint/)
 [![YAML Lint](https://img.shields.io/badge/yaml--lint-passing-brightgreen)](https://yamllint.readthedocs.io/)
 
-This is a hobby project that I'm using to make my life easier and do weird things with Ansible. It may or may not be safe to run, and may or may not do bizarre things to your profile. Fork, run, enjoy at your own risk! 
+This is a hobby project that I'm using to make my life easier and do weird things with Ansible. It may or may not be safe to run, and may or may not do bizarre things to your profile/computer. Fork, run, enjoy at your own risk!
 
 A robust, cross-platform Ansible playbook for automated development workstation setup with comprehensive testing, linting, and CI/CD integration.
 
@@ -25,7 +25,7 @@ A robust, cross-platform Ansible playbook for automated development workstation 
 - **🔍 Production Quality**: Passes ansible-lint production profile standards
 - **🚀 CI/CD Ready**: GitHub Actions workflow for automated testing
 - **📦 Modern Package Management**: Homebrew, APT, DNF, Flatpak support
-- **🏠 Dotfiles Integration**: Automated chezmoi setup and configuration
+- **🏠 Dotfiles Integration**: Automated [chezmoi](https://www.chezmoi.io/) setup and configuration
 
 ## 🚀 Quick Start
 
