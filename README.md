@@ -91,6 +91,7 @@ make test-quick     # Run quick tests (lint + syntax only)
 make lint           # Run YAML and Ansible linting
 make syntax         # Run syntax check
 make molecule       # Run Molecule tests
+make fix-fedora     # Fix Fedora 42+ libdnf5 issues
 make clean          # Clean up test artifacts
 
 # Platform-specific testing
@@ -404,7 +405,7 @@ brew install python3
 sudo apt-get update && sudo apt-get install -y python3-pip
 
 # On Fedora/RHEL:
-sudo dnf install -y python3-pip
+sudo dnf install -y python3-pip python3-libdnf5
 ```
 
 #### Collection Installation
@@ -439,6 +440,18 @@ echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
 # Refresh GPG keys
 sudo apt-key del 9C135BD3 && sudo apt-key del 1F3A1A1F
 sudo rm /etc/apt/sources.list.d/microsoft*.list
+```
+
+#### Fedora libdnf5 Issues
+```bash
+# Fix "could not import the libdnf5 python module" error on Fedora 42+
+sudo dnf install -y python3-libdnf5 python3-dnf
+
+# Alternative: Use package manager directly
+sudo dnf install -y ansible
+
+# Or specify Python interpreter explicitly
+ansible-playbook main.yml -e ansible_python_interpreter=/usr/bin/python3
 ```
 
 ### Debug Mode

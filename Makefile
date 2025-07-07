@@ -1,4 +1,4 @@
-.PHONY: help install test test-quick lint syntax molecule clean
+.PHONY: help install test test-quick lint syntax molecule fix-fedora clean
 
 # Default target
 help:
@@ -9,6 +9,7 @@ help:
 	@echo "  lint        - Run YAML and Ansible linting"
 	@echo "  syntax      - Run syntax check"
 	@echo "  molecule    - Run Molecule tests"
+	@echo "  fix-fedora  - Fix Fedora 42+ libdnf5 issues"
 	@echo "  clean       - Clean up test artifacts"
 
 # Install testing dependencies
@@ -26,7 +27,7 @@ install:
 				sudo apt-get update && sudo apt-get install -y python3-pip; \
 			elif command -v dnf >/dev/null 2>&1; then \
 				echo "📦 Installing pip via dnf..."; \
-				sudo dnf install -y python3-pip; \
+				sudo dnf install -y python3-pip python3-libdnf5; \
 			elif command -v yum >/dev/null 2>&1; then \
 				echo "📦 Installing pip via yum..."; \
 				sudo yum install -y python3-pip; \
@@ -34,7 +35,7 @@ install:
 				echo "❌ Could not install pip automatically. Please install pip manually:"; \
 				echo "   - macOS: brew install python3"; \
 				echo "   - Ubuntu/Debian: sudo apt-get install python3-pip"; \
-				echo "   - Fedora/RHEL: sudo dnf install python3-pip"; \
+				echo "   - Fedora/RHEL: sudo dnf install python3-pip python3-libdnf5"; \
 				exit 1; \
 			fi; \
 		else \
@@ -87,6 +88,18 @@ test-ubuntu:
 test-fedora:
 	@echo "Testing Fedora..."
 	./scripts/test.sh --distro fedora38
+
+# Fix Fedora libdnf5 issues
+fix-fedora:
+	@echo "🔧 Fixing Fedora libdnf5 issues..."
+	@if command -v dnf >/dev/null 2>&1; then \
+		echo "📦 Installing required packages..."; \
+		sudo dnf install -y python3-libdnf5 python3-dnf ansible; \
+		echo "✅ Fedora packages installed successfully"; \
+	else \
+		echo "❌ This fix is only for Fedora systems with DNF"; \
+		exit 1; \
+	fi
 
 # Clean up
 clean:
