@@ -49,7 +49,13 @@ A robust, cross-platform Ansible playbook for automated development workstation 
 
    ```bash
    make install
-   # OR manually:
+   # The install target will automatically:
+   # - Check for pip availability
+   # - Install pip if missing (via appropriate package manager)
+   # - Install Python packages: ansible, ansible-lint, yamllint, molecule
+   # - Install Ansible collections from requirements.yml
+   
+   # OR manually if you prefer:
    pip install ansible ansible-lint yamllint molecule[docker]
    ansible-galaxy collection install -r requirements.yml
    ```
@@ -384,6 +390,22 @@ make test-fedora
 ## 🐛 Troubleshooting
 
 ### Common Issues
+
+#### Dependency Installation
+```bash
+# If make install fails, try manually:
+python3 -m pip install --user ansible ansible-lint yamllint molecule[docker]
+
+# On macOS without Homebrew:
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install python3
+
+# On Ubuntu/Debian:
+sudo apt-get update && sudo apt-get install -y python3-pip
+
+# On Fedora/RHEL:
+sudo dnf install -y python3-pip
+```
 
 #### Collection Installation
 ```bash

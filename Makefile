@@ -14,7 +14,43 @@ help:
 # Install testing dependencies
 install:
 	@echo "Installing testing dependencies..."
-	pip install ansible ansible-lint yamllint molecule[docker]
+	@echo "Checking for pip availability..."
+	@if ! command -v pip >/dev/null 2>&1 && ! command -v pip3 >/dev/null 2>&1; then \
+		echo "❌ pip not found. Installing pip..."; \
+		if command -v python3 >/dev/null 2>&1; then \
+			if command -v brew >/dev/null 2>&1; then \
+				echo "📦 Installing pip via Homebrew..."; \
+				brew install python3; \
+			elif command -v apt-get >/dev/null 2>&1; then \
+				echo "📦 Installing pip via apt..."; \
+				sudo apt-get update && sudo apt-get install -y python3-pip; \
+			elif command -v dnf >/dev/null 2>&1; then \
+				echo "📦 Installing pip via dnf..."; \
+				sudo dnf install -y python3-pip; \
+			elif command -v yum >/dev/null 2>&1; then \
+				echo "📦 Installing pip via yum..."; \
+				sudo yum install -y python3-pip; \
+			else \
+				echo "❌ Could not install pip automatically. Please install pip manually:"; \
+				echo "   - macOS: brew install python3"; \
+				echo "   - Ubuntu/Debian: sudo apt-get install python3-pip"; \
+				echo "   - Fedora/RHEL: sudo dnf install python3-pip"; \
+				exit 1; \
+			fi; \
+		else \
+			echo "❌ Python3 not found. Please install Python3 first."; \
+			exit 1; \
+		fi; \
+	else \
+		echo "✅ pip is available"; \
+	fi
+	@echo "Installing Python packages..."
+	@if command -v pip3 >/dev/null 2>&1; then \
+		pip3 install ansible ansible-lint yamllint molecule[docker]; \
+	else \
+		pip install ansible ansible-lint yamllint molecule[docker]; \
+	fi
+	@echo "Installing Ansible collections..."
 	ansible-galaxy collection install -r requirements.yml
 
 # Run all tests
