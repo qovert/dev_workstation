@@ -9,8 +9,13 @@ help:
 	@echo "  lint        - Run YAML and Ansible linting"
 	@echo "  syntax      - Run syntax check"
 	@echo "  molecule    - Run Molecule tests"
-	@echo "  fix-fedora  - Fix Fedora 42+ libdnf5 issues"
+	@echo "  fix-fedora  - Fix Fedora 42+ libdnf5 issues (🔧 FEDORA ONLY)"
 	@echo "  clean       - Clean up test artifacts"
+	@echo ""
+	@echo "Troubleshooting:"
+	@echo "  - Fedora libdnf5 error: make fix-fedora"
+	@echo "  - Docker issues: Start Docker Desktop first"
+	@echo "  - Pip missing: make install (auto-installs)"
 
 # Install testing dependencies
 install:
@@ -47,9 +52,9 @@ install:
 	fi
 	@echo "Installing Python packages..."
 	@if command -v pip3 >/dev/null 2>&1; then \
-		pip3 install ansible ansible-lint yamllint molecule[docker]; \
+		pip3 install ansible ansible-lint yamllint molecule molecule-plugins[docker]; \
 	else \
-		pip install ansible ansible-lint yamllint molecule[docker]; \
+		pip install ansible ansible-lint yamllint molecule molecule-plugins[docker]; \
 	fi
 	@echo "Installing Ansible collections..."
 	ansible-galaxy collection install -r requirements.yml

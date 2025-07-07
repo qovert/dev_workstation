@@ -28,6 +28,17 @@ platforms:
       - /tmp
     capabilities:
       - SYS_ADMIN
+  - name: fedora-39
+    image: quay.io/ansible/molecule-fedora:39
+    pre_build_image: true
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /run
+      - /tmp
+    capabilities:
+      - SYS_ADMIN
 provisioner:
   name: ansible
   inventory:

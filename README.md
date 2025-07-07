@@ -443,20 +443,40 @@ sudo rm /etc/apt/sources.list.d/microsoft*.list
 ```
 
 #### Fedora libdnf5 Issues
-```bash
-# Fix "could not import the libdnf5 python module" error on Fedora 42+
-sudo dnf install -y python3-libdnf5 python3-dnf
 
-# Alternative: Use package manager directly
+**Error**: `could not import the libdnf5 python module using /usr/bin/python3.13`
+
+This is a common issue on Fedora 42+ where the `libdnf5` Python module is not available by default.
+
+**Quick Fix**:
+
+```bash
+# Use the built-in fix-fedora target
+make fix-fedora
+
+# Or manually install required packages
+sudo dnf install -y python3-libdnf5 python3-dnf ansible
+```
+
+**Alternative Solutions**:
+
+```bash
+# Use package manager directly for initial setup
 sudo dnf install -y ansible
 
-# Or specify Python interpreter explicitly
+# Specify Python interpreter explicitly
 ansible-playbook main.yml -e ansible_python_interpreter=/usr/bin/python3
+
+# Force refresh DNF cache
+sudo dnf clean all && sudo dnf makecache
 ```
+
+**For Molecule Testing**: The `prepare.yml` step automatically installs `python3-libdnf5` on Fedora containers.
 
 ### Debug Mode
 
 Enable debug mode for detailed output:
+
 ```bash
 ansible-playbook main.yml -vvv
 ```
@@ -464,12 +484,14 @@ ansible-playbook main.yml -vvv
 ### Log Files
 
 Check logs in:
+
 - `/tmp/ansible_facts_cache/` - Cached facts
 - `~/.ansible/` - Ansible data directory
 
 ## 📋 ToDo & Roadmap
 
 ### Completed ✅
+
 - [x] Cross-platform OS detection and execution
 - [x] Comprehensive testing infrastructure (Molecule, CI/CD)
 - [x] Production-grade linting and code quality
