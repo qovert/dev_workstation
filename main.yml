@@ -36,7 +36,7 @@
 
     - name: Set OS-specific facts
       ansible.builtin.set_fact:
-        is_macos: "{{ ansible_os_family == 'Darwin' }}"
+        is_macos: "{{ ansible_system == 'Darwin' }}"
         is_fedora: >-
           {{ ansible_distribution == 'Fedora' or
              ansible_distribution == 'RedHat' or
@@ -47,6 +47,10 @@
         is_linux: "{{ ansible_system == 'Linux' }}"
 
   roles:
+    - role: elliotweiser.osx-command-line-tools
+      when:
+        - is_macos
+        - configure_macos | default(false)
     - role: geerlingguy.mac.homebrew
       when:
         - is_macos

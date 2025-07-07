@@ -21,17 +21,40 @@ homebrew_installed_packages:
   - powershell
   - git
   - zsh
+  - python
+  - node
+  - wget
+  - jq
+  - yq
 
 homebrew_cask_apps:
   - obsidian
   - iterm2
   - visual-studio-code
   - font-fira-code
+  - font-fira-code-nerd-font
+  - docker
+  - firefox
+  - google-chrome
+
+# Advanced homebrew configuration
+homebrew_taps:
+  - homebrew/cask-fonts
+  - homebrew/cask-drivers
+
+homebrew_upgrade_all_packages: false
+homebrew_use_brewfile: true
+homebrew_clear_cache: true
 
 # geerlingguy.mac.mas role variables
 mas_installed_apps:
   - {id: 497799835, name: "Xcode"}
   - {id: 1451685025, name: "WireGuard"}
+  - {id: 425264550, name: "Blackmagic Disk Speed Test"}
+  - {id: 411643860, name: "DaisyDisk"}
+
+mas_upgrade_all_apps: false
+mas_signin_dialog: false
 
 # geerlingguy.mac.dock role variables
 dockitems_remove:
@@ -39,6 +62,18 @@ dockitems_remove:
   - TV
   - Podcasts
   - 'App Store'
+  - Maps
+  - Photos
+  - FaceTime
+  - Calendar
+  - Contacts
+  - Reminders
+  - Notes
+  - Music
+  - News
+  - Stocks
+  - Home
+  - Shortcuts
 
 dockitems_persist:
   - name: "Finder"
@@ -50,9 +85,18 @@ dockitems_persist:
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
     pos: 3
+  - name: "Firefox"
+    path: "/Applications/Firefox.app/"
+    pos: 4
+  - name: "Google Chrome"
+    path: "/Applications/Google Chrome.app/"
+    pos: 5
   - name: "Obsidian"
     path: "/Applications/Obsidian.app/"
-    pos: 4
+    pos: 6
+
+# Install dockutil automatically
+dockutil_install: true
 
 # Legacy variables for backward compatibility
 mac_packages:
