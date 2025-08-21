@@ -80,6 +80,17 @@
         - configure_macos | default(false)
         - homebrew_installed.stat.exists | default(false)
       block:
+        - name: Check system Ruby version
+          ansible.builtin.command: ruby --version
+          register: ruby_version
+          failed_when: false
+          changed_when: false
+          become: no
+
+        - name: Debug Ruby version
+          ansible.builtin.debug:
+            msg: "System Ruby version: {{ ruby_version.stdout | default('Not found') }}"
+
         - name: Fix Homebrew permissions for current user
           ansible.builtin.file:
             path: "{{ item }}"
@@ -91,6 +102,14 @@
             - "{{ '/opt/homebrew/var' if ansible_machine == 'arm64' else '/usr/local/var' }}"
             - "{{ '/opt/homebrew/var/homebrew' if ansible_machine == 'arm64' else '/usr/local/var/homebrew' }}"
             - "{{ '/opt/homebrew/var/homebrew/locks' if ansible_machine == 'arm64' else '/usr/local/var/homebrew/locks' }}"
+            - "{{ '/opt/homebrew/Library' if ansible_machine == 'arm64' else '/usr/local/Library' }}"
+            - "{{ '/opt/homebrew/Library/Homebrew' if ansible_machine == 'arm64' else '/usr/local/Library/Homebrew' }}"
+          become: yes
+          ignore_errors: yes
+
+        - name: Ensure Homebrew can write to its directories
+          ansible.builtin.command: |
+            sudo chown -R {{ ansible_user_id }}:admin {{ '/opt/homebrew' if ansible_machine == 'arm64' else '/usr/local' }}
           become: yes
           ignore_errors: yes
 
