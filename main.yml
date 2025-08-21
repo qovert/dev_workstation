@@ -54,33 +54,6 @@
       when: is_macos
       become: no
 
-    - name: Fix Homebrew permissions before any operations (macOS)
-      when:
-        - is_macos
-        - homebrew_installed.stat.exists | default(false)
-      block:
-        - name: Ensure Homebrew directories exist and have correct permissions
-          ansible.builtin.file:
-            path: "{{ item }}"
-            owner: "{{ ansible_user_id }}"
-            group: admin
-            mode: '0755'
-            state: directory
-          loop:
-            - "{{ '/opt/homebrew/var' if ansible_machine == 'arm64' else '/usr/local/var' }}"
-            - "{{ '/opt/homebrew/var/homebrew' if ansible_machine == 'arm64' else '/usr/local/var/homebrew' }}"
-            - "{{ '/opt/homebrew/var/homebrew/locks' if ansible_machine == 'arm64' else '/usr/local/var/homebrew/locks' }}"
-            - "{{ '/opt/homebrew/Library' if ansible_machine == 'arm64' else '/usr/local/Library' }}"
-            - "{{ '/opt/homebrew/Library/Homebrew' if ansible_machine == 'arm64' else '/usr/local/Library/Homebrew' }}"
-          become: yes
-          ignore_errors: yes
-
-        - name: Fix ownership of Homebrew installation
-          ansible.builtin.command: |
-            chown -R {{ ansible_user_id }}:admin {{ '/opt/homebrew' if ansible_machine == 'arm64' else '/usr/local' }}
-          become: yes
-          ignore_errors: yes
-
   roles:
     - role: elliotweiser.osx-command-line-tools
       when:
