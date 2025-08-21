@@ -4,6 +4,7 @@
   gather_facts: true
   strategy: linear
   serial: 1
+  become: yes
 
   vars_files:
     - default.config.yml
@@ -51,20 +52,17 @@
       when:
         - is_macos
         - configure_macos | default(false)
-    - role: geerlingguy.mac.homebrew
+    - role: geerlingguy.homebrew
+      become: no
       when:
         - is_macos
         - configure_macos | default(false)
-    - role: geerlingguy.mac.mas
+    - role: geerlingguy.mas
+      become: no
       when:
         - is_macos
         - configure_macos | default(false)
         - configure_mas | default(false)
-    - role: geerlingguy.mac.dock
-      when:
-        - is_macos
-        - configure_macos | default(false)
-        - configure_dock | default(false)
 
   tasks:
     - name: Debug OS-specific task execution

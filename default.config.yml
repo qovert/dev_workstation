@@ -46,6 +46,13 @@ homebrew_upgrade_all_packages: false
 homebrew_use_brewfile: true
 homebrew_clear_cache: true
 
+# Prevent permission issues during homebrew updates
+homebrew_check_for_updates: false
+homebrew_update_homebrew: false
+
+# Override homebrew installation check to avoid permission issues
+homebrew_install_path: "{{ '/opt/homebrew' if ansible_machine == 'arm64' else '/usr/local' }}"
+
 # geerlingguy.mac.mas role variables
 mas_installed_apps:
   - {id: 497799835, name: "Xcode"}
