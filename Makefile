@@ -1,9 +1,13 @@
-.PHONY: help install test test-quick lint syntax molecule fix-fedora clean
+.PHONY: help install test test-quick lint syntax molecule fix-fedora clean setup run-playbook run-playbook-no-pass setup-no-pass
 
 # Default target
 help:
 	@echo "Available targets:"
-	@echo "  install     - Install testing dependencies"
+	@echo "  setup       - Complete workstation setup (install deps + run playbook)"
+	@echo "  setup-no-pass - Setup without password prompt (uses sudo without password)"
+	@echo "  install     - Install testing dependencies only"
+	@echo "  run-playbook- Run the Ansible playbook (requires install first)"
+	@echo "  run-playbook-no-pass - Run playbook without password prompt"
 	@echo "  test        - Run all tests"
 	@echo "  test-quick  - Run quick tests (lint + syntax)"
 	@echo "  lint        - Run YAML and Ansible linting"
@@ -11,6 +15,14 @@ help:
 	@echo "  molecule    - Run Molecule tests"
 	@echo "  fix-fedora  - Fix Fedora 42+ libdnf5 issues (🔧 FEDORA ONLY)"
 	@echo "  clean       - Clean up test artifacts"
+	@echo ""
+	@echo "Quick Start:"
+	@echo "  make setup  - One-command workstation setup"
+	@echo ""
+	@echo "Supported Platforms:"
+	@echo "  - macOS (with automatic Homebrew installation)"
+	@echo "  - Fedora/RHEL/CentOS (with DNF)"
+	@echo "  - Ubuntu/Debian (with APT)"
 	@echo ""
 	@echo "Troubleshooting:"
 	@echo "  - Fedora libdnf5 error: make fix-fedora"
@@ -107,6 +119,54 @@ install:
 		echo "Please check that Ansible was installed successfully and try again."; \
 		echo "You may need to restart your terminal session or run:"; \
 		echo "  export PATH=\"$$(python3 -m site --user-base)/bin:\$$PATH\""; \
+		exit 1; \
+	fi
+
+# Complete workstation setup - install dependencies and run playbook
+setup: install run-playbook
+	@echo "🎉 Workstation setup complete!"
+
+# Run the Ansible playbook
+run-playbook:
+	@echo "🚀 Running Ansible playbook for workstation setup..."
+	@export PATH="$$(python3 -m site --user-base)/bin:$$PATH" 2>/dev/null || export PATH="$$(python -m site --user-base)/bin:$$PATH" 2>/dev/null || true; \
+	if command -v ansible-playbook >/dev/null 2>&1; then \
+		echo "✅ Found ansible-playbook in PATH"; \
+		echo "📋 Running playbook on localhost..."; \
+		ansible-playbook main.yml -i localhost, --connection=local --ask-become-pass; \
+	elif python3 -c "import ansible" 2>/dev/null; then \
+		echo "📦 Using python3 -m ansible.playbook..."; \
+		python3 -c "from ansible.cli.playbook import PlaybookCLI; import sys; sys.argv = ['ansible-playbook', 'main.yml', '-i', 'localhost,', '--connection=local', '--ask-become-pass']; PlaybookCLI().run()"; \
+	elif python -c "import ansible" 2>/dev/null; then \
+		echo "📦 Using python -m ansible.playbook..."; \
+		python -c "from ansible.cli.playbook import PlaybookCLI; import sys; sys.argv = ['ansible-playbook', 'main.yml', '-i', 'localhost,', '--connection=local', '--ask-become-pass']; PlaybookCLI().run()"; \
+	else \
+		echo "❌ Ansible playbook is not accessible."; \
+		echo "Please ensure Ansible was installed successfully by running 'make install'"; \
+		exit 1; \
+	fi
+
+# Complete workstation setup without password prompts (for CI/automated environments)
+setup-no-pass: install run-playbook-no-pass
+	@echo "🎉 Workstation setup complete (no password prompts)!"
+
+# Run the Ansible playbook without password prompts
+run-playbook-no-pass:
+	@echo "🚀 Running Ansible playbook for workstation setup (no password prompts)..."
+	@export PATH="$$(python3 -m site --user-base)/bin:$$PATH" 2>/dev/null || export PATH="$$(python -m site --user-base)/bin:$$PATH" 2>/dev/null || true; \
+	if command -v ansible-playbook >/dev/null 2>&1; then \
+		echo "✅ Found ansible-playbook in PATH"; \
+		echo "📋 Running playbook on localhost (no password prompts)..."; \
+		ansible-playbook main.yml -i localhost, --connection=local --become; \
+	elif python3 -c "import ansible" 2>/dev/null; then \
+		echo "📦 Using python3 -m ansible.playbook..."; \
+		python3 -c "from ansible.cli.playbook import PlaybookCLI; import sys; sys.argv = ['ansible-playbook', 'main.yml', '-i', 'localhost,', '--connection=local', '--become']; PlaybookCLI().run()"; \
+	elif python -c "import ansible" 2>/dev/null; then \
+		echo "📦 Using python -m ansible.playbook..."; \
+		python -c "from ansible.cli.playbook import PlaybookCLI; import sys; sys.argv = ['ansible-playbook', 'main.yml', '-i', 'localhost,', '--connection=local', '--become']; PlaybookCLI().run()"; \
+	else \
+		echo "❌ Ansible playbook is not accessible."; \
+		echo "Please ensure Ansible was installed successfully by running 'make install'"; \
 		exit 1; \
 	fi
 
