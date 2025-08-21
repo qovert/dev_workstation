@@ -109,7 +109,14 @@ install:
 	@echo "Installing Ansible collections and roles..."
 	@echo "Refreshing shell environment..."
 	@hash -r 2>/dev/null || true
-	@export PATH="$$(python3 -m site --user-base)/bin:$$PATH" 2>/dev/null || export PATH="$$(python -m site --user-base)/bin:$$PATH" 2>/dev/null || true; \
+	@echo "Detecting Python user base directory..."
+	@USER_BASE=$$(python3 -c "import site; print(site.USER_BASE)" 2>/dev/null) || USER_BASE=$$(python -c "import site; print(site.USER_BASE)" 2>/dev/null) || USER_BASE=""; \
+	if [ -n "$$USER_BASE" ]; then \
+		export PATH="$$USER_BASE/bin:$$PATH"; \
+		echo "Added $$USER_BASE/bin to PATH"; \
+	else \
+		echo "⚠️  Could not determine Python user base directory"; \
+	fi; \
 	if command -v ansible-galaxy >/dev/null 2>&1; then \
 		echo "✅ Found ansible-galaxy in PATH"; \
 		echo "📦 Installing Ansible roles..."; \
@@ -131,8 +138,10 @@ install:
 	else \
 		echo "❌ Ansible is not properly installed or not accessible."; \
 		echo "Please check that Ansible was installed successfully and try again."; \
-		echo "You may need to restart your terminal session or run:"; \
-		echo "  export PATH=\"$$(python3 -m site --user-base)/bin:\$$PATH\""; \
+		echo "You may need to restart your terminal session or manually add to PATH:"; \
+		if [ -n "$$USER_BASE" ]; then \
+			echo "  export PATH=\"$$USER_BASE/bin:\$$PATH\""; \
+		fi; \
 		exit 1; \
 	fi
 
@@ -143,7 +152,11 @@ setup: install run-playbook
 # Run the Ansible playbook
 run-playbook:
 	@echo "🚀 Running Ansible playbook for workstation setup..."
-	@export PATH="$$(python3 -m site --user-base)/bin:$$PATH" 2>/dev/null || export PATH="$$(python -m site --user-base)/bin:$$PATH" 2>/dev/null || true; \
+	@USER_BASE=$$(python3 -c "import site; print(site.USER_BASE)" 2>/dev/null) || USER_BASE=$$(python -c "import site; print(site.USER_BASE)" 2>/dev/null) || USER_BASE=""; \
+	if [ -n "$$USER_BASE" ]; then \
+		export PATH="$$USER_BASE/bin:$$PATH"; \
+		echo "Added $$USER_BASE/bin to PATH"; \
+	fi; \
 	if command -v ansible-playbook >/dev/null 2>&1; then \
 		echo "✅ Found ansible-playbook in PATH"; \
 		echo "📋 Running playbook on localhost..."; \
@@ -157,6 +170,9 @@ run-playbook:
 	else \
 		echo "❌ Ansible playbook is not accessible."; \
 		echo "Please ensure Ansible was installed successfully by running 'make install'"; \
+		if [ -n "$$USER_BASE" ]; then \
+			echo "You may need to add to PATH: export PATH=\"$$USER_BASE/bin:\$$PATH\""; \
+		fi; \
 		exit 1; \
 	fi
 
@@ -167,7 +183,11 @@ setup-no-pass: install run-playbook-no-pass
 # Run the Ansible playbook without password prompts
 run-playbook-no-pass:
 	@echo "🚀 Running Ansible playbook for workstation setup (no password prompts)..."
-	@export PATH="$$(python3 -m site --user-base)/bin:$$PATH" 2>/dev/null || export PATH="$$(python -m site --user-base)/bin:$$PATH" 2>/dev/null || true; \
+	@USER_BASE=$$(python3 -c "import site; print(site.USER_BASE)" 2>/dev/null) || USER_BASE=$$(python -c "import site; print(site.USER_BASE)" 2>/dev/null) || USER_BASE=""; \
+	if [ -n "$$USER_BASE" ]; then \
+		export PATH="$$USER_BASE/bin:$$PATH"; \
+		echo "Added $$USER_BASE/bin to PATH"; \
+	fi; \
 	if command -v ansible-playbook >/dev/null 2>&1; then \
 		echo "✅ Found ansible-playbook in PATH"; \
 		echo "📋 Running playbook on localhost (no password prompts)..."; \
@@ -181,6 +201,9 @@ run-playbook-no-pass:
 	else \
 		echo "❌ Ansible playbook is not accessible."; \
 		echo "Please ensure Ansible was installed successfully by running 'make install'"; \
+		if [ -n "$$USER_BASE" ]; then \
+			echo "You may need to add to PATH: export PATH=\"$$USER_BASE/bin:\$$PATH\""; \
+		fi; \
 		exit 1; \
 	fi
 
