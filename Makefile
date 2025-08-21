@@ -31,6 +31,12 @@ install:
 				python3 -m pip install --upgrade pip; \
 				echo "📦 Installing Ansible and dependencies (macOS/Homebrew)..."; \
 				python3 -m pip install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
+			else \
+				echo "❌ Homebrew is not installed. Please install Homebrew first:"; \
+				echo "   /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""; \
+				echo "Then re-run 'make install'."; \
+				exit 1; \
+			fi; \
 			elif command -v apt-get >/dev/null 2>&1; then \
 				echo "📦 Installing pip via apt..."; \
 				sudo apt-get update && sudo apt-get install -y python3-pip; \
