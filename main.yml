@@ -80,6 +80,20 @@
         - configure_macos | default(false)
         - homebrew_installed.stat.exists | default(false)
       block:
+        - name: Fix Homebrew permissions for current user
+          ansible.builtin.file:
+            path: "{{ item }}"
+            owner: "{{ ansible_user_id }}"
+            group: admin
+            mode: '0755'
+            state: directory
+          loop:
+            - "{{ '/opt/homebrew/var' if ansible_machine == 'arm64' else '/usr/local/var' }}"
+            - "{{ '/opt/homebrew/var/homebrew' if ansible_machine == 'arm64' else '/usr/local/var/homebrew' }}"
+            - "{{ '/opt/homebrew/var/homebrew/locks' if ansible_machine == 'arm64' else '/usr/local/var/homebrew/locks' }}"
+          become: yes
+          ignore_errors: yes
+
         - name: Install Homebrew packages
           community.general.homebrew:
             name: "{{ homebrew_installed_packages }}"
