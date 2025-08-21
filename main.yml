@@ -71,9 +71,14 @@
         - is_macos
         - configure_macos | default(false)
         - configure_mas | default(false)
+        - not (homebrew_installed.stat.exists | default(false))
 
   tasks:
     - name: Install Homebrew packages (macOS)
+      when:
+        - is_macos
+        - configure_macos | default(false)
+        - homebrew_installed.stat.exists | default(false)
       block:
         - name: Install Homebrew packages
           community.general.homebrew:
@@ -97,10 +102,22 @@
           become: no
           when: homebrew_taps is defined
 
-      when:
-        - is_macos
-        - configure_macos | default(false)
-        - homebrew_installed.stat.exists | default(false)
+        - name: Install MAS (Mac App Store CLI)
+          community.general.homebrew:
+            name: mas
+            state: present
+          become: no
+          when: configure_mas | default(false)
+
+        - name: Install Mac App Store applications
+          community.general.mas:
+            id: "{{ item.id }}"
+            state: present
+          loop: "{{ mas_installed_apps }}"
+          become: no
+          when:
+            - configure_mas | default(false)
+            - mas_installed_apps is defined
 
     - name: Debug OS-specific task execution
       ansible.builtin.debug:
