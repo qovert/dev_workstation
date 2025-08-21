@@ -31,12 +31,21 @@ install:
 				python3 -m pip install --upgrade pip; \
 				echo "📦 Installing Ansible and dependencies (macOS/Homebrew)..."; \
 				python3 -m pip install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
-			else \
-				echo "❌ Homebrew is not installed. Please install Homebrew first:"; \
-				echo "   /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""; \
-				echo "Then re-run 'make install'."; \
-				exit 1; \
-			fi; \
+			elif uname -s | grep -q "Darwin"; then \
+				echo "📦 macOS detected, installing Homebrew first..."; \
+				/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
+				echo "📦 Adding Homebrew to PATH..."; \
+				if [[ -f /opt/homebrew/bin/brew ]]; then \
+					eval "$$(/opt/homebrew/bin/brew shellenv)"; \
+				elif [[ -f /usr/local/bin/brew ]]; then \
+					eval "$$(/usr/local/bin/brew shellenv)"; \
+				fi; \
+				echo "📦 Installing Python3 via Homebrew..."; \
+				brew install python3; \
+				echo "📦 Upgrading pip (macOS/Homebrew)..."; \
+				python3 -m pip install --upgrade pip; \
+				echo "📦 Installing Ansible and dependencies (macOS/Homebrew)..."; \
+				python3 -m pip install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
 			elif command -v apt-get >/dev/null 2>&1; then \
 				echo "📦 Installing pip via apt..."; \
 				sudo apt-get update && sudo apt-get install -y python3-pip; \
@@ -51,7 +60,7 @@ install:
 				python3 -m pip install --upgrade pip; \
 			else \
 				echo "❌ Could not install pip automatically. Please install pip manually:"; \
-				echo "   - macOS: brew install python3"; \
+				echo "   - macOS: /bin/bash -c \"$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""; \
 				echo "   - Ubuntu/Debian: sudo apt-get install python3-pip"; \
 				echo "   - Fedora/RHEL: sudo dnf install python3-pip python3-libdnf5"; \
 				exit 1; \
@@ -73,7 +82,13 @@ install:
 		$$PIP install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
 	fi
 	@echo "Installing Ansible collections..."
-	ansible-galaxy collection install -r requirements.yml
+	@if command -v ansible-galaxy >/dev/null 2>&1; then \
+		ansible-galaxy collection install -r requirements.yml; \
+	else \
+		echo "❌ ansible-galaxy not found. Ansible may not be properly installed."; \
+		echo "Please ensure Ansible is in your PATH and try again."; \
+		exit 1; \
+	fi
 
 # Run all tests
 test:
