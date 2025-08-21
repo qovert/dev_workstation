@@ -101,18 +101,27 @@ install:
 		export PATH="$$USER_BIN:$$PATH"; \
 		echo "Updated PATH to include: $$USER_BIN"; \
 	fi
-	@echo "Installing Ansible collections..."
+	@echo "Installing Ansible collections and roles..."
 	@echo "Refreshing shell environment..."
 	@hash -r 2>/dev/null || true
 	@export PATH="$$(python3 -m site --user-base)/bin:$$PATH" 2>/dev/null || export PATH="$$(python -m site --user-base)/bin:$$PATH" 2>/dev/null || true; \
 	if command -v ansible-galaxy >/dev/null 2>&1; then \
 		echo "✅ Found ansible-galaxy in PATH"; \
+		echo "📦 Installing Ansible roles..."; \
+		ansible-galaxy role install -r requirements.yml; \
+		echo "📦 Installing Ansible collections..."; \
 		ansible-galaxy collection install -r requirements.yml; \
 	elif python3 -c "import ansible" 2>/dev/null; then \
 		echo "📦 Using python3 -m ansible.galaxy..."; \
+		echo "📦 Installing Ansible roles..."; \
+		python3 -m ansible.galaxy role install -r requirements.yml; \
+		echo "📦 Installing Ansible collections..."; \
 		python3 -m ansible.galaxy collection install -r requirements.yml; \
 	elif python -c "import ansible" 2>/dev/null; then \
 		echo "📦 Using python -m ansible.galaxy..."; \
+		echo "📦 Installing Ansible roles..."; \
+		python -m ansible.galaxy role install -r requirements.yml; \
+		echo "📦 Installing Ansible collections..."; \
 		python -m ansible.galaxy collection install -r requirements.yml; \
 	else \
 		echo "❌ Ansible is not properly installed or not accessible."; \
