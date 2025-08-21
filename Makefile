@@ -32,6 +32,23 @@ help:
 # Install testing dependencies
 install:
 	@echo "Installing testing dependencies..."
+	@echo "Checking for Homebrew on macOS..."
+	@if uname -s | grep -q "Darwin"; then \
+		if ! command -v brew >/dev/null 2>&1; then \
+			echo "📦 macOS detected, installing Homebrew..."; \
+			/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
+			echo "📦 Adding Homebrew to PATH..."; \
+			if [[ -f /opt/homebrew/bin/brew ]]; then \
+				eval "$$(/opt/homebrew/bin/brew shellenv)"; \
+			elif [[ -f /usr/local/bin/brew ]]; then \
+				eval "$$(/usr/local/bin/brew shellenv)"; \
+			fi; \
+			echo "📦 Installing Python3 via Homebrew..."; \
+			brew install python3; \
+		else \
+			echo "✅ Homebrew is already installed"; \
+		fi; \
+	fi
 	@echo "Checking for pip availability..."
 	@if ! command -v pip >/dev/null 2>&1 && ! command -v pip3 >/dev/null 2>&1; then \
 		echo "❌ pip not found. Installing pip..."; \
@@ -44,20 +61,8 @@ install:
 				echo "📦 Installing Ansible and dependencies (macOS/Homebrew)..."; \
 				python3 -m pip install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
 			elif uname -s | grep -q "Darwin"; then \
-				echo "📦 macOS detected, installing Homebrew first..."; \
-				/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
-				echo "📦 Adding Homebrew to PATH..."; \
-				if [[ -f /opt/homebrew/bin/brew ]]; then \
-					eval "$$(/opt/homebrew/bin/brew shellenv)"; \
-				elif [[ -f /usr/local/bin/brew ]]; then \
-					eval "$$(/usr/local/bin/brew shellenv)"; \
-				fi; \
-				echo "📦 Installing Python3 via Homebrew..."; \
-				brew install python3; \
-				echo "📦 Upgrading pip (macOS/Homebrew)..."; \
-				python3 -m pip install --upgrade pip; \
-				echo "📦 Installing Ansible and dependencies (macOS/Homebrew)..."; \
-				python3 -m pip install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
+				echo "❌ This should not happen - Homebrew should be installed by now"; \
+				exit 1; \
 			elif command -v apt-get >/dev/null 2>&1; then \
 				echo "📦 Installing pip via apt..."; \
 				sudo apt-get update && sudo apt-get install -y python3-pip; \
