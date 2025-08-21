@@ -80,13 +80,33 @@ install:
 		$$PIP install --upgrade pip; \
 		echo "📦 Installing Ansible and dependencies..."; \
 		$$PIP install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
+		echo "📦 Adding pip user bin to PATH..."; \
+		if [[ "$$PIP" == "pip3" ]]; then \
+			USER_BIN=$$(python3 -m site --user-base)/bin; \
+		else \
+			USER_BIN=$$(python -m site --user-base)/bin; \
+		fi; \
+		export PATH="$$USER_BIN:$$PATH"; \
+		echo "Updated PATH to include: $$USER_BIN"; \
 	fi
 	@echo "Installing Ansible collections..."
-	@if command -v ansible-galaxy >/dev/null 2>&1; then \
+	@echo "Refreshing shell environment..."
+	@hash -r 2>/dev/null || true
+	@export PATH="$$(python3 -m site --user-base)/bin:$$PATH" 2>/dev/null || export PATH="$$(python -m site --user-base)/bin:$$PATH" 2>/dev/null || true; \
+	if command -v ansible-galaxy >/dev/null 2>&1; then \
+		echo "✅ Found ansible-galaxy in PATH"; \
 		ansible-galaxy collection install -r requirements.yml; \
+	elif python3 -c "import ansible" 2>/dev/null; then \
+		echo "📦 Using python3 -m ansible.galaxy..."; \
+		python3 -m ansible.galaxy collection install -r requirements.yml; \
+	elif python -c "import ansible" 2>/dev/null; then \
+		echo "📦 Using python -m ansible.galaxy..."; \
+		python -m ansible.galaxy collection install -r requirements.yml; \
 	else \
-		echo "❌ ansible-galaxy not found. Ansible may not be properly installed."; \
-		echo "Please ensure Ansible is in your PATH and try again."; \
+		echo "❌ Ansible is not properly installed or not accessible."; \
+		echo "Please check that Ansible was installed successfully and try again."; \
+		echo "You may need to restart your terminal session or run:"; \
+		echo "  export PATH=\"$$(python3 -m site --user-base)/bin:\$$PATH\""; \
 		exit 1; \
 	fi
 
