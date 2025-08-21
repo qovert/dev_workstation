@@ -57,9 +57,9 @@ install:
 				echo "📦 Installing pip via Homebrew..."; \
 				brew install python3; \
 				echo "📦 Upgrading pip (macOS/Homebrew)..."; \
-				python3 -m pip install --upgrade pip; \
+				python3 -m pip install --upgrade pip --break-system-packages 2>/dev/null || python3 -m pip install --upgrade pip --user; \
 				echo "📦 Installing Ansible and dependencies (macOS/Homebrew)..."; \
-				python3 -m pip install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
+				python3 -m pip install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]" --break-system-packages 2>/dev/null || python3 -m pip install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]" --user; \
 			elif uname -s | grep -q "Darwin"; then \
 				echo "❌ This should not happen - Homebrew should be installed by now"; \
 				exit 1; \
@@ -94,9 +94,9 @@ install:
 			PIP=pip; \
 		fi; \
 		echo "📦 Upgrading pip..."; \
-		$$PIP install --upgrade pip; \
+		$$PIP install --upgrade pip --break-system-packages 2>/dev/null || $$PIP install --upgrade pip --user; \
 		echo "📦 Installing Ansible and dependencies..."; \
-		$$PIP install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
+		$$PIP install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]" --break-system-packages 2>/dev/null || $$PIP install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]" --user; \
 		echo "📦 Adding pip user bin to PATH..."; \
 		if [[ "$$PIP" == "pip3" ]]; then \
 			USER_BIN=$$(python3 -m site --user-base)/bin; \
