@@ -53,6 +53,10 @@ homebrew_update_homebrew: false
 # Override homebrew installation check to avoid permission issues
 homebrew_install_path: "{{ '/opt/homebrew' if ansible_machine == 'arm64' else '/usr/local' }}"
 
+# Prevent homebrew role from managing directory permissions (SIP protected)
+homebrew_folders_additional: []
+homebrew_folders_base: []
+
 # geerlingguy.mac.mas role variables
 mas_installed_apps:
   - {id: 497799835, name: "Xcode"}

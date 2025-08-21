@@ -47,6 +47,13 @@
              ansible_distribution == 'Ubuntu' }}
         is_linux: "{{ ansible_system == 'Linux' }}"
 
+    - name: Check if Homebrew is already installed (macOS)
+      ansible.builtin.stat:
+        path: "{{ '/opt/homebrew/bin/brew' if ansible_machine == 'arm64' else '/usr/local/bin/brew' }}"
+      register: homebrew_installed
+      when: is_macos
+      become: no
+
   roles:
     - role: elliotweiser.osx-command-line-tools
       when:
@@ -57,6 +64,7 @@
       when:
         - is_macos
         - configure_macos | default(false)
+        - not (homebrew_installed.stat.exists | default(false))
     - role: geerlingguy.mas
       become: no
       when:
@@ -65,6 +73,35 @@
         - configure_mas | default(false)
 
   tasks:
+    - name: Install Homebrew packages (macOS)
+      block:
+        - name: Install Homebrew packages
+          community.general.homebrew:
+            name: "{{ homebrew_installed_packages }}"
+            state: present
+          become: no
+          when: homebrew_installed_packages is defined
+
+        - name: Install Homebrew cask applications
+          community.general.homebrew_cask:
+            name: "{{ homebrew_cask_apps }}"
+            state: present
+          become: no
+          when: homebrew_cask_apps is defined
+
+        - name: Add Homebrew taps
+          community.general.homebrew_tap:
+            name: "{{ item }}"
+            state: present
+          loop: "{{ homebrew_taps }}"
+          become: no
+          when: homebrew_taps is defined
+
+      when:
+        - is_macos
+        - configure_macos | default(false)
+        - homebrew_installed.stat.exists | default(false)
+
     - name: Debug OS-specific task execution
       ansible.builtin.debug:
         msg:
