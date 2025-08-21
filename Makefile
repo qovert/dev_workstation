@@ -27,15 +27,22 @@ install:
 			if command -v brew >/dev/null 2>&1; then \
 				echo "📦 Installing pip via Homebrew..."; \
 				brew install python3; \
+				echo "📦 Upgrading pip (macOS/Homebrew)..."; \
+				python3 -m pip install --upgrade pip; \
+				echo "📦 Installing Ansible and dependencies (macOS/Homebrew)..."; \
+				python3 -m pip install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
 			elif command -v apt-get >/dev/null 2>&1; then \
 				echo "📦 Installing pip via apt..."; \
 				sudo apt-get update && sudo apt-get install -y python3-pip; \
+				python3 -m pip install --upgrade pip; \
 			elif command -v dnf >/dev/null 2>&1; then \
 				echo "📦 Installing pip via dnf..."; \
 				sudo dnf install -y python3-pip python3-libdnf5; \
+				python3 -m pip install --upgrade pip; \
 			elif command -v yum >/dev/null 2>&1; then \
 				echo "📦 Installing pip via yum..."; \
 				sudo yum install -y python3-pip; \
+				python3 -m pip install --upgrade pip; \
 			else \
 				echo "❌ Could not install pip automatically. Please install pip manually:"; \
 				echo "   - macOS: brew install python3"; \
@@ -49,12 +56,15 @@ install:
 		fi; \
 	else \
 		echo "✅ pip is available"; \
-	fi
-	@echo "Installing Python packages..."
-	@if command -v pip3 >/dev/null 2>&1; then \
-		pip3 install ansible ansible-lint yamllint molecule molecule-plugins[docker]; \
-	else \
-		pip install ansible ansible-lint yamllint molecule molecule-plugins[docker]; \
+		if command -v pip3 >/dev/null 2>&1; then \
+			PIP=pip3; \
+		else \
+			PIP=pip; \
+		fi; \
+		echo "📦 Upgrading pip..."; \
+		$$PIP install --upgrade pip; \
+		echo "📦 Installing Ansible and dependencies..."; \
+		$$PIP install --upgrade ansible ansible-lint yamllint molecule "molecule-plugins[docker]"; \
 	fi
 	@echo "Installing Ansible collections..."
 	ansible-galaxy collection install -r requirements.yml
