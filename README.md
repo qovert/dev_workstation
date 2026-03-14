@@ -14,7 +14,7 @@
 
 This is a hobby project that I'm using to make my life easier and do weird things with Ansible. It may or may not be safe to run, and may or may not do bizarre things to your profile/computer. Fork, run, enjoy at your own risk!
 
-A robust, cross-platform Ansible playbook for automated development workstation setup with comprehensive testing, linting, and CI/CD integration.
+A robust, cross-platform Ansible playbook for automated development workstation setup with comprehensive testing, linting, and CI/CD integration. test
 
 ## ✨ Features
 
