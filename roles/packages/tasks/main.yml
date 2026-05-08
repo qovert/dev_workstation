@@ -1,0 +1,12 @@
+---
+- name: Configure Fedora packages
+  ansible.builtin.include_tasks: fedora.yml
+  when:
+    - is_fedora | default(false)
+    - configure_linux | default(false)
+
+- name: Configure Debian packages
+  ansible.builtin.include_tasks: debian.yml
+  when:
+    - is_debian | default(false)
+    - configure_linux | default(false)

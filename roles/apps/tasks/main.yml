@@ -1,0 +1,6 @@
+---
+- name: Configure Fedora applications
+  ansible.builtin.include_tasks: fedora.yml
+  when:
+    - is_fedora | default(false)
+    - configure_linux | default(false)

@@ -1,0 +1,4 @@
+---
+# Fallback defaults — override these in default.config.yml
+fedora_packages: []
+debian_packages: []

@@ -1,19 +1,9 @@
 ---
-# Prepare step for Molecule tests
 - name: Prepare test environment
   hosts: all
   become: true
   gather_facts: true
   tasks:
-    - name: Fix Fedora libdnf5 issues
-      ansible.builtin.dnf:
-        name:
-          - python3-libdnf5
-          - python3-dnf
-        state: present
-      when: ansible_os_family == 'RedHat' and ansible_distribution == 'Fedora'
-      ignore_errors: true
-
     - name: Update package cache (Debian/Ubuntu)
       ansible.builtin.apt:
         update_cache: true
@@ -27,4 +17,3 @@
           - git
           - python3
         state: present
-      ignore_errors: true

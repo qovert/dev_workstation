@@ -1,0 +1,6 @@
+---
+- name: Configure macOS system defaults
+  ansible.builtin.include_tasks: macos.yml
+  when:
+    - is_macos | default(false)
+    - configure_macos | default(false)

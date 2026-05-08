@@ -1,0 +1,4 @@
+---
+galaxy_info:
+  description: Desktop application installation (Flatpak, Casks, App Store)
+  min_ansible_version: "2.15"

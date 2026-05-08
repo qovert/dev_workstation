@@ -2,25 +2,28 @@
 - name: Converge
   hosts: all
   gather_facts: true
-  
+  become: true
+
   vars_files:
     - ../../default.config.yml
-    
+
   vars:
-    # Override for testing
-    configure_dotfiles: true
+    configure_dotfiles: false
     configure_linux: true
     configure_macos: false
+    configure_mas: false
+    configure_dock: false
     github_username: "test-user"
-    
+
   pre_tasks:
-    - name: Update apt cache (Ubuntu/Debian)
-      ansible.builtin.apt:
-        update_cache: true
-      when: ansible_os_family == "Debian"
-      become: true
-      
-    - name: Install required packages for testing
+    - name: Set OS facts
+      ansible.builtin.set_fact:
+        is_macos: "{{ ansible_system == 'Darwin' }}"
+        is_fedora: "{{ ansible_distribution == 'Fedora' }}"
+        is_debian: "{{ ansible_os_family == 'Debian' }}"
+        is_linux: "{{ ansible_system == 'Linux' }}"
+
+    - name: Install testing prerequisites
       ansible.builtin.package:
         name:
           - curl
@@ -28,16 +31,6 @@
         state: present
       become: true
 
-  tasks:
-    - name: Include dotfiles tasks
-      ansible.builtin.include_tasks: ../../tasks/dotfiles.yml
-      
-    - name: Include OS-specific tasks
-      ansible.builtin.include_tasks: "../../tasks/{{ item }}"
-      loop:
-        - fedora.wkstn.yml
-        - deb.wkstn.yml
-      when: 
-        - configure_linux | default(false)
-        - (item == 'fedora.wkstn.yml' and ansible_os_family == 'RedHat') or
-          (item == 'deb.wkstn.yml' and ansible_os_family == 'Debian')
+  roles:
+    - role: packages
+    - role: apps

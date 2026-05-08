@@ -1,73 +1,75 @@
 ---
-downloads: ~/.ansible-downloads/
+# =============================================================================
+# Required: your GitHub username for dotfiles (chezmoi init <github_username>)
+# Set this in config.yml (git-ignored) or export GITHUB_USERNAME in your shell.
+# =============================================================================
+github_username: "{{ lookup('env', 'GITHUB_USERNAME') }}"
 
-# Main configuration flags
+# =============================================================================
+# Features — disable any you don't need
+# =============================================================================
 configure_dotfiles: true
 configure_macos: true
 configure_linux: true
-configure_mas: true
+configure_mas: false  # requires prior App Store sign-in
 configure_dock: true
 
-GITHUB_USERNAME: "qovert"
-
-# geerlingguy.mac.homebrew role variables
+# =============================================================================
+# macOS — Homebrew formulae
+# Managed by the geerlingguy.homebrew role.
+# =============================================================================
 homebrew_installed_packages:
+  - chezmoi
   - gh
-  - oh-my-posh
-  - ncdu
-  - tree
-  - pstree
-  - docker
-  - powershell
   - git
-  - zsh
-  - python
-  - node
-  - wget
   - jq
+  - ncdu
+  - node
+  - oh-my-posh
+  - pstree
+  - python
+  - tree
+  - wget
   - yq
+  - zsh
 
 homebrew_cask_apps:
-  - obsidian
-  - iterm2
-  - visual-studio-code
-  - font-fira-code
-  - font-fira-code-nerd-font
+  - 1password
   - docker
   - firefox
-  - google-chrome
+  - font-fira-code-nerd-font
+  - iterm2
+  - obsidian
+  - visual-studio-code
 
-# Advanced homebrew configuration
 homebrew_taps:
   - homebrew/cask-fonts
-  - homebrew/cask-drivers
 
 homebrew_upgrade_all_packages: false
-homebrew_use_brewfile: true
+homebrew_use_brewfile: false
 homebrew_clear_cache: true
-
-# Prevent permission issues during homebrew updates
 homebrew_check_for_updates: false
 homebrew_update_homebrew: false
-
-# Override homebrew installation check to avoid permission issues
 homebrew_install_path: "{{ '/opt/homebrew' if ansible_machine == 'arm64' else '/usr/local' }}"
-
-# Prevent homebrew role from managing directory permissions (SIP protected)
 homebrew_folders_additional: []
 homebrew_folders_base: []
 
-# geerlingguy.mac.mas role variables
+# =============================================================================
+# macOS — App Store
+# configure_mas must be true and you must be signed in to the App Store.
+# =============================================================================
 mas_installed_apps:
-  - {id: 497799835, name: "Xcode"}
   - {id: 1451685025, name: "WireGuard"}
-  - {id: 425264550, name: "Blackmagic Disk Speed Test"}
-  - {id: 411643860, name: "DaisyDisk"}
 
 mas_upgrade_all_apps: false
 mas_signin_dialog: false
 
-# geerlingguy.mac.dock role variables
+# =============================================================================
+# macOS — Dock
+# configure_dock must be true to enable.
+# =============================================================================
+dockutil_install: true
+
 dockitems_remove:
   - Launchpad
   - TV
@@ -99,49 +101,52 @@ dockitems_persist:
   - name: "Firefox"
     path: "/Applications/Firefox.app/"
     pos: 4
-  - name: "Google Chrome"
-    path: "/Applications/Google Chrome.app/"
-    pos: 5
   - name: "Obsidian"
     path: "/Applications/Obsidian.app/"
-    pos: 6
+    pos: 5
 
-# Install dockutil automatically
-dockutil_install: true
-
-# Legacy variables for backward compatibility
-mac_packages:
-  - gh
-  - oh-my-posh
-  - ncdu
-  - tree
-  - pstree
-  - docker
-  - powershell
-  - font-fira-code
-  - obsidian
-  - iterm2
-  - visual-studio-code
-
-common_packages:
-  - git
-  - zsh
-
-linux_packages:
-  # - distrobox
-  - flatpak
-  - tilix
-  - powershell
-  - bpytop
+# =============================================================================
+# Fedora — DNF packages
+# =============================================================================
+fedora_packages:
   - 1password
   - 1password-cli
+  - btop
   - code
-  - tree
-  - zsh
   - direnv
+  - flatpak
+  - fuse-libs
+  - gh
+  - git
   - gnome-tweaks
+  - jq
+  - ncdu
+  - oh-my-posh
+  - powershell
+  - tilix
+  - tree
   - vim
+  - wget
+  - yq
+  - zsh
 
-linux_flatpak_packages:
-  - md.obsidian.Obsidian
+# =============================================================================
+# Fedora — Flatpak applications
+# =============================================================================
+fedora_flatpak_apps:
   - com.discordapp.Discord
+  - com.github.johnfactotum.Foliate
+  - eu.betterbird.Betterbird
+  - it.mijorus.gearlever
+  - md.obsidian.Obsidian
+  - org.kde.krita
+  - org.qbittorrent.qBittorrent
+
+# =============================================================================
+# oh-my-posh themes
+# =============================================================================
+omp_themes:
+  - url: https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/kali.omp.json
+    dest: kali.omp.json
+  - url: https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/microverse-power.omp.json
+    dest: microverse-power.omp.json

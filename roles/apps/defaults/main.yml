@@ -1,0 +1,3 @@
+---
+# Fallback defaults — override these in default.config.yml
+fedora_flatpak_apps: []

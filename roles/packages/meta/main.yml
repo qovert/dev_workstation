@@ -1,0 +1,4 @@
+---
+galaxy_info:
+  description: Package installation for Fedora and Debian-family systems
+  min_ansible_version: "2.15"

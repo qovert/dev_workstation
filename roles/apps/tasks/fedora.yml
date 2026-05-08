@@ -1,0 +1,25 @@
+---
+- name: Add Flathub remote (system)
+  community.general.flatpak_remote:
+    name: flathub
+    state: present
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+    method: system
+  become: true
+
+- name: Add Flathub remote (user)
+  community.general.flatpak_remote:
+    name: flathub
+    state: present
+    flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
+    method: user
+  become: false
+
+- name: Install Flatpak applications (user)
+  community.general.flatpak:
+    name: "{{ item }}"
+    state: present
+    remote: flathub
+    method: user
+  loop: "{{ fedora_flatpak_apps }}"
+  become: false

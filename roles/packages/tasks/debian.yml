@@ -1,0 +1,80 @@
+---
+# UNTESTED: Debian/Ubuntu support is not actively maintained.
+# These tasks are provided as a starting point only.
+
+- name: Install prerequisite packages
+  ansible.builtin.apt:
+    name:
+      - wget
+      - apt-transport-https
+      - software-properties-common
+    state: present
+    update_cache: true
+  become: true
+
+- name: Check if Microsoft GPG key exists
+  ansible.builtin.stat:
+    path: /etc/apt/keyrings/packages.microsoft.gpg
+  register: microsoft_gpg
+
+- name: Download Microsoft GPG key
+  ansible.builtin.get_url:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    dest: /tmp/microsoft.asc
+    mode: '0644'
+  when: not microsoft_gpg.stat.exists
+
+- name: Dearmor Microsoft GPG key
+  ansible.builtin.command:
+    cmd: gpg --dearmor --output /etc/apt/keyrings/packages.microsoft.gpg /tmp/microsoft.asc
+  when: not microsoft_gpg.stat.exists
+  changed_when: not microsoft_gpg.stat.exists
+  become: true
+
+- name: Add Visual Studio Code apt repository
+  ansible.builtin.copy:
+    content: |
+      deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] \
+      https://packages.microsoft.com/repos/code stable main
+    dest: /etc/apt/sources.list.d/vscode.list
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Check if 1Password GPG key exists
+  ansible.builtin.stat:
+    path: /etc/apt/keyrings/1password-archive-keyring.gpg
+  register: one_password_gpg
+
+- name: Download 1Password GPG key
+  ansible.builtin.get_url:
+    url: https://downloads.1password.com/linux/keys/1password.asc
+    dest: /tmp/1password.asc
+    mode: '0644'
+  when: not one_password_gpg.stat.exists
+
+- name: Dearmor 1Password GPG key
+  ansible.builtin.command:
+    cmd: gpg --dearmor --output /etc/apt/keyrings/1password-archive-keyring.gpg /tmp/1password.asc
+  when: not one_password_gpg.stat.exists
+  changed_when: not one_password_gpg.stat.exists
+  become: true
+
+- name: Add 1Password apt repository
+  ansible.builtin.copy:
+    content: |
+      deb [arch=amd64 signed-by=/etc/apt/keyrings/1password-archive-keyring.gpg] \
+      https://downloads.1password.com/linux/debian/amd64 stable main
+    dest: /etc/apt/sources.list.d/1password.list
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Install Debian packages
+  ansible.builtin.apt:
+    name: "{{ debian_packages }}"
+    state: present
+    update_cache: true
+  become: true

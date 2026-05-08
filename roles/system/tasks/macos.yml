@@ -1,11 +1,12 @@
 ---
-- name: Set default AppleKeyPress in VSCode to support vim extension
+- name: Disable ApplePressAndHold in VS Code (enables key repeat for vim)
   community.general.osx_defaults:
     domain: com.microsoft.VSCode
     key: ApplePressAndHoldEnabled
     type: bool
     value: false
     state: present
+  become: false
 
 - name: Set Dock to auto-hide
   community.general.osx_defaults:
@@ -14,6 +15,8 @@
     type: bool
     value: true
     state: present
+  become: false
+  notify: Restart Dock
 
 - name: Set Dock icon size
   community.general.osx_defaults:
@@ -22,7 +25,10 @@
     type: int
     value: 48
     state: present
+  become: false
+  notify: Restart Dock
 
-- name: Restart Dock to apply changes
-  ansible.builtin.command: killall Dock
-  changed_when: false
+- name: Configure Dock items
+  ansible.builtin.include_role:
+    name: geerlingguy.mac.dock
+  when: configure_dock | default(false)

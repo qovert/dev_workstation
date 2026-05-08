@@ -1,0 +1,4 @@
+---
+galaxy_info:
+  description: OS-level configuration (macOS defaults, dock)
+  min_ansible_version: "2.15"

@@ -1,0 +1,88 @@
+---
+- name: Import Microsoft GPG key
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://packages.microsoft.com/keys/microsoft.asc
+  become: true
+
+- name: Add Microsoft packages repository
+  ansible.builtin.get_url:
+    url: https://packages.microsoft.com/config/rhel/8/prod.repo
+    dest: /etc/yum.repos.d/microsoft.repo
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Add Visual Studio Code repository
+  ansible.builtin.copy:
+    content: |
+      [code]
+      name=Visual Studio Code
+      baseurl=https://packages.microsoft.com/yumrepos/vscode
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+    dest: /etc/yum.repos.d/vscode.repo
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Add 1Password repository
+  ansible.builtin.copy:
+    content: |
+      [1password]
+      name=1Password Stable Channel
+      baseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch
+      gpgcheck=1
+      enabled=1
+      gpgkey=https://downloads.1password.com/linux/keys/1password.asc
+    dest: /etc/yum.repos.d/1password.repo
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Install RPM Fusion free and nonfree repositories
+  ansible.builtin.dnf5:
+    name:
+      - "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+      - "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+    state: present
+  become: true
+
+- name: Check if Terra repository is installed
+  ansible.builtin.command: rpm -q terra-release
+  register: terra_release_check
+  changed_when: false
+  failed_when: false
+
+- name: Install Terra repository
+  ansible.builtin.command:
+    cmd: dnf install -y --nogpgcheck --repofrompath terra,https://repos.fyralabs.com/terra$releasever terra-release
+  when: terra_release_check.rc != 0
+  changed_when: true
+  become: true
+
+- name: Upgrade core group for AppStream metadata
+  ansible.builtin.dnf5:
+    name: "@core"
+    state: present
+  become: true
+
+- name: Install core group via dnf4 for AppStream metadata
+  ansible.builtin.command: dnf4 group install -y core
+  become: true
+  register: dnf4_core
+  changed_when: "'Nothing to do' not in dnf4_core.stdout"
+
+- name: Install Fedora packages
+  ansible.builtin.dnf5:
+    name: "{{ fedora_packages }}"
+    state: present
+  become: true
+  retries: 3
+  delay: 5
+  register: dnf_result
+  until: dnf_result is succeeded

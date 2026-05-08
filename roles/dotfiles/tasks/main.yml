@@ -1,0 +1,84 @@
+---
+- name: Set chezmoi binary path
+  ansible.builtin.set_fact:
+    chezmoi_bin_path: >-
+      {{ '/opt/homebrew/bin/chezmoi'
+         if (ansible_facts['system'] == 'Darwin' and ansible_facts['machine'] == 'arm64')
+         else '/usr/local/bin/chezmoi'
+         if ansible_facts['system'] == 'Darwin'
+         else user_home + '/.local/bin/chezmoi' }}
+    chezmoi_data_path: "{{ user_home }}/.local/share/chezmoi"
+
+- name: Ensure ~/.local/bin exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.local/bin"
+    state: directory
+    mode: '0755'
+  when: ansible_facts['system'] != 'Darwin'
+  become: false
+
+- name: Install chezmoi via Homebrew (macOS)
+  community.general.homebrew:
+    name: chezmoi
+    state: present
+  become: false
+  when: ansible_facts['system'] == 'Darwin'
+
+- name: Install chezmoi via script (Linux)
+  ansible.builtin.shell:
+    cmd: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "{{ user_home }}/.local/bin"
+    creates: "{{ user_home }}/.local/bin/chezmoi"
+  become: false
+  when: ansible_facts['system'] != 'Darwin'
+  retries: 3
+  delay: 5
+
+- name: Ensure chezmoi binary is executable
+  ansible.builtin.file:
+    path: "{{ chezmoi_bin_path }}"
+    mode: '0755'
+  when: ansible_facts['system'] != 'Darwin'
+  become: false
+
+- name: Verify chezmoi is available
+  ansible.builtin.command: "{{ chezmoi_bin_path }} --version"
+  register: chezmoi_version_check
+  changed_when: false
+  failed_when: chezmoi_version_check.rc != 0
+  become: false
+
+- name: Check if chezmoi is initialized
+  ansible.builtin.stat:
+    path: "{{ chezmoi_data_path }}/.git"
+  register: chezmoi_initialized
+
+- name: Initialize chezmoi with dotfiles repository
+  ansible.builtin.command: "{{ chezmoi_bin_path }} init {{ github_username }}"
+  when: not chezmoi_initialized.stat.exists
+  changed_when: true
+  become: false
+
+- name: Apply chezmoi configuration
+  ansible.builtin.command: "{{ chezmoi_bin_path }} apply"
+  register: chezmoi_apply
+  changed_when: chezmoi_apply.stdout | length > 0
+  failed_when: chezmoi_apply.rc != 0
+  become: false
+
+- name: Ensure oh-my-posh themes directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/omp_themes"
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Download oh-my-posh themes
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ user_home }}/.config/omp_themes/{{ item.dest }}"
+    mode: '0644'
+    force: false
+  loop: "{{ omp_themes }}"
+  retries: 3
+  delay: 5
+  become: false

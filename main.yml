@@ -2,166 +2,87 @@
 - name: Development Workstation Setup
   hosts: all
   gather_facts: true
-  strategy: linear
-  serial: 1
-  become: yes
+  become: true
 
   vars_files:
     - default.config.yml
 
   vars:
-    # Global retry settings
-    retry_count: 3
-    retry_delay: 5
-
-    # Performance settings
     ansible_python_interpreter: auto_silent
 
-    # Connection optimizations
-    ansible_ssh_pipelining: true
-    ansible_ssh_control_persist: 300s
-
-    # Cache settings
-    fact_caching: jsonfile
-    fact_caching_connection: /tmp/ansible_facts_cache
-    fact_caching_timeout: 3600
-
   pre_tasks:
-    - name: Debug OS information
-      ansible.builtin.debug:
-        msg:
-          - "ansible_os_family: {{ ansible_os_family }}"
-          - "ansible_distribution: {{ ansible_distribution }}"
-          - "ansible_distribution_major_version: {{ ansible_distribution_major_version }}"
-          - "ansible_system: {{ ansible_system }}"
+    - name: Load local config overrides
+      ansible.builtin.include_vars: "{{ item }}"
+      with_first_found:
+        - files:
+            - config.yml
+          skip: true
+      tags: always
 
-    - name: Set OS-specific facts
+    - name: Validate required variables
+      ansible.builtin.assert:
+        that:
+          - github_username is defined
+          - github_username | length > 0
+        fail_msg: >-
+          github_username must be set in default.config.yml or passed via
+          -e github_username=<your-github-username>
+      when: configure_dotfiles | default(false)
+      tags: always
+
+    - name: Set OS facts
       ansible.builtin.set_fact:
         is_macos: "{{ ansible_system == 'Darwin' }}"
-        is_fedora: >-
-          {{ ansible_distribution == 'Fedora' or
-             ansible_distribution == 'RedHat' or
-             ansible_distribution == 'CentOS' }}
-        is_debian: >-
-          {{ ansible_distribution == 'Debian' or
-             ansible_distribution == 'Ubuntu' }}
+        is_fedora: "{{ ansible_distribution == 'Fedora' }}"
+        is_debian: "{{ ansible_os_family == 'Debian' }}"
         is_linux: "{{ ansible_system == 'Linux' }}"
+        user_home: "{{ lookup('env', 'HOME') }}"
+      tags: always
 
-    - name: Check if Homebrew is already installed (macOS)
-      ansible.builtin.stat:
-        path: "{{ '/opt/homebrew/bin/brew' if ansible_machine == 'arm64' else '/usr/local/bin/brew' }}"
-      register: homebrew_installed
-      when: is_macos
-      become: no
+    - name: Bootstrap DNF Python bindings (Fedora 41+)
+      ansible.builtin.raw: dnf install -y python3-libdnf5 python3-dnf
+      when:
+        - ansible_distribution == 'Fedora'
+        - ansible_distribution_major_version | int >= 41
+      changed_when: false
+      tags: always
 
   roles:
     - role: elliotweiser.osx-command-line-tools
+      become: false
       when:
         - is_macos
         - configure_macos | default(false)
+      tags: macos
+
     - role: geerlingguy.homebrew
-      become: no
-      when:
-        - is_macos
-        - configure_macos | default(false)
-        - not (homebrew_installed.stat.exists | default(false))
-    - role: geerlingguy.mas
-      become: no
-      when:
-        - is_macos
-        - configure_macos | default(false)
-        - configure_mas | default(false)
-        - not (homebrew_installed.stat.exists | default(false))
-
-  tasks:
-    - name: Install Homebrew packages (macOS)
-      when:
-        - is_macos
-        - configure_macos | default(false)
-        - homebrew_installed.stat.exists | default(false)
-      block:
-        - name: Install Homebrew packages
-          community.general.homebrew:
-            name: "{{ homebrew_installed_packages }}"
-            state: present
-          become: no
-          when: homebrew_installed_packages is defined
-
-        - name: Install Homebrew cask applications
-          community.general.homebrew_cask:
-            name: "{{ homebrew_cask_apps }}"
-            state: present
-          become: no
-          when: homebrew_cask_apps is defined
-
-        - name: Add Homebrew taps
-          community.general.homebrew_tap:
-            name: "{{ item }}"
-            state: present
-          loop: "{{ homebrew_taps }}"
-          become: no
-          when: homebrew_taps is defined
-
-        - name: Install MAS (Mac App Store CLI)
-          community.general.homebrew:
-            name: mas
-            state: present
-          become: no
-          when: configure_mas | default(false)
-
-        - name: Install Mac App Store applications
-          community.general.mas:
-            id: "{{ item.id }}"
-            state: present
-          loop: "{{ mas_installed_apps }}"
-          become: no
-          when:
-            - configure_mas | default(false)
-            - mas_installed_apps is defined
-
-    - name: Debug OS-specific task execution
-      ansible.builtin.debug:
-        msg:
-          - "Will execute macOS tasks: {{ is_macos and (configure_macos | default(false)) }}"
-          - >-
-            Will execute Fedora/RHEL tasks:
-            {{ (is_fedora or ansible_os_family == 'RedHat') and
-               (configure_linux | default(false)) }}
-          - >-
-            Will execute Debian/Ubuntu tasks:
-            {{ (is_debian or ansible_os_family == 'Debian') and
-               (configure_linux | default(false)) }}
-          - "Will execute dotfiles tasks: {{ configure_dotfiles | default(false) }}"
-      tags: always
-
-    - name: Load dotfiles tasks
-      ansible.builtin.include_tasks: tasks/dotfiles.yml
-      when: configure_dotfiles | default(false)
-      tags: dotfiles
-
-    - name: Load macOS defaults tasks
-      ansible.builtin.include_tasks: tasks/mac.defaults.yml
+      become: false
       when:
         - is_macos
         - configure_macos | default(false)
       tags:
         - macos
-        - defaults
+        - packages
 
-    - name: Load Fedora/RHEL tasks
-      ansible.builtin.include_tasks: tasks/fedora.wkstn.yml
+    - role: geerlingguy.mas
+      become: false
       when:
-        - is_fedora or ansible_os_family == "RedHat"
-        - configure_linux | default(false)
+        - is_macos
+        - configure_macos | default(false)
+        - configure_mas | default(false)
       tags:
-        - linux
-        - fedora
+        - macos
+        - apps
 
-    - name: Load Debian/Ubuntu tasks
-      ansible.builtin.include_tasks: tasks/deb.wkstn.yml
-      when:
-        - is_debian or ansible_os_family == "Debian"
-        - configure_linux | default(false)
-      tags:
-        - linux
-        - debian
+    - role: packages
+      tags: packages
+
+    - role: apps
+      tags: apps
+
+    - role: dotfiles
+      when: configure_dotfiles | default(false)
+      tags: dotfiles
+
+    - role: system
+      tags: system
