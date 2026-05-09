@@ -72,11 +72,18 @@
     state: present
   become: true
 
+- name: Check dnf4 availability
+  ansible.builtin.command: which dnf4
+  register: dnf4_path
+  changed_when: false
+  failed_when: false
+
 - name: Install core group via dnf4 for AppStream metadata
   ansible.builtin.command: dnf4 group install -y core
   become: true
   register: dnf4_core
   changed_when: "'Nothing to do' not in dnf4_core.stdout"
+  when: dnf4_path.rc == 0
 
 - name: Install Fedora packages
   ansible.builtin.dnf5:

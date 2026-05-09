@@ -4,6 +4,9 @@
   gather_facts: true
   become: true
 
+  vars_files:
+    - ../../default.config.yml
+
   vars:
     configure_dotfiles: false
     configure_linux: true
@@ -21,4 +24,5 @@
         is_linux: "{{ ansible_system == 'Linux' }}"
 
   roles:
+    - role: packages
     - role: system

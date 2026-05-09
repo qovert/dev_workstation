@@ -4,6 +4,12 @@
   gather_facts: true
 
   tasks:
+    - name: Check git is installed
+      ansible.builtin.command: git --version
+      register: git_version
+      changed_when: false
+      failed_when: git_version.rc != 0
+
     - name: Check zsh is installed
       ansible.builtin.command: zsh --version
       register: zsh_version
@@ -19,3 +25,15 @@
       ansible.builtin.assert:
         that: "'/zsh' in root_passwd.stdout"
         fail_msg: "Default shell for root is not zsh"
+
+    - name: Check Flathub repo file exists
+      ansible.builtin.stat:
+        path: /etc/yum.repos.d/vscode.repo
+      register: vscode_repo
+      when: ansible_distribution == 'Fedora'
+
+    - name: Assert VSCode repo is configured
+      ansible.builtin.assert:
+        that: vscode_repo.stat.exists
+        fail_msg: "VSCode repository not found"
+      when: ansible_distribution == 'Fedora'
