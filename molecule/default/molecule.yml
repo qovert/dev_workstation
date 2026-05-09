@@ -2,7 +2,7 @@
 dependency:
   name: galaxy
   options:
-    requirements-file: requirements.yml
+    requirements-file: ../../requirements.yml
 driver:
   name: docker
 platforms:
@@ -29,6 +29,8 @@ provisioner:
         configure_mas: false
         configure_dock: false
         github_username: "test-user"
+        system_user: root
+        user_home: /root
 verifier:
   name: ansible
 scenario:

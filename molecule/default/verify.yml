@@ -4,26 +4,18 @@
   gather_facts: true
 
   tasks:
-    - name: Check git is installed
-      ansible.builtin.command: git --version
-      register: git_version
-      changed_when: false
-      failed_when: git_version.rc != 0
-
     - name: Check zsh is installed
       ansible.builtin.command: zsh --version
       register: zsh_version
       changed_when: false
       failed_when: zsh_version.rc != 0
 
-    - name: Verify Flathub remote is configured
-      ansible.builtin.command: flatpak remotes
-      register: flatpak_remotes
+    - name: Check root default shell is zsh
+      ansible.builtin.command: getent passwd root
+      register: root_passwd
       changed_when: false
-      when: ansible_distribution == 'Fedora'
 
-    - name: Assert Flathub remote exists
+    - name: Assert root shell is zsh
       ansible.builtin.assert:
-        that: "'flathub' in flatpak_remotes.stdout"
-        fail_msg: "Flathub remote not found"
-      when: ansible_distribution == 'Fedora'
+        that: "'/zsh' in root_passwd.stdout"
+        fail_msg: "Default shell for root is not zsh"

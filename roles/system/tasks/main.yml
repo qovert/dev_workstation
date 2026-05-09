@@ -7,7 +7,7 @@
 
 - name: Set default shell to zsh
   ansible.builtin.user:
-    name: "{{ lookup('env', 'USER') }}"
+    name: "{{ system_user | default(lookup('env', 'USER')) }}"
     shell: "{{ zsh_binary.stdout }}"
   become: true
 

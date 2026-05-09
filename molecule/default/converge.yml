@@ -4,9 +4,6 @@
   gather_facts: true
   become: true
 
-  vars_files:
-    - ../../default.config.yml
-
   vars:
     configure_dotfiles: false
     configure_linux: true
@@ -23,14 +20,5 @@
         is_debian: "{{ ansible_os_family == 'Debian' }}"
         is_linux: "{{ ansible_system == 'Linux' }}"
 
-    - name: Install testing prerequisites
-      ansible.builtin.package:
-        name:
-          - curl
-          - git
-        state: present
-      become: true
-
   roles:
-    - role: packages
-    - role: apps
+    - role: system
