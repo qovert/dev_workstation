@@ -55,16 +55,14 @@
     state: present
   become: true
 
-- name: Check if Terra repository is installed
-  ansible.builtin.command: rpm -q terra-release
-  register: terra_release_check
-  changed_when: false
-  failed_when: false
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: rpm
 
 - name: Install Terra repository
   ansible.builtin.command:
     cmd: dnf install -y --nogpgcheck --repofrompath terra,https://repos.fyralabs.com/terra$releasever terra-release
-  when: terra_release_check.rc != 0
+  when: "'terra-release' not in ansible_facts.packages"
   changed_when: true
   become: true
 

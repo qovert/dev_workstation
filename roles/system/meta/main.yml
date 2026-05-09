@@ -2,4 +2,5 @@
 galaxy_info:
   author: qovert
   description: OS-level configuration (macOS defaults, dock, shell)
+  license: MIT
   min_ansible_version: "2.15"

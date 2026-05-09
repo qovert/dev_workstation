@@ -2,4 +2,5 @@
 galaxy_info:
   author: qovert
   description: Package installation for Fedora and Debian-family systems
+  license: MIT
   min_ansible_version: "2.15"
