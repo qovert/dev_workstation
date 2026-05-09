@@ -6,8 +6,8 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: fedora-39
-    image: geerlingguy/docker-fedora39-ansible:latest
+  - name: fedora-42
+    image: geerlingguy/docker-fedora42-ansible:latest
     pre_build_image: true
     privileged: true
     volumes:
