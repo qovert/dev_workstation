@@ -1,4 +1,16 @@
 ---
+- name: Find zsh binary
+  ansible.builtin.command: which zsh
+  register: zsh_binary
+  changed_when: false
+  become: false
+
+- name: Set default shell to zsh
+  ansible.builtin.user:
+    name: "{{ lookup('env', 'USER') }}"
+    shell: "{{ zsh_binary.stdout }}"
+  become: true
+
 - name: Configure macOS system defaults
   ansible.builtin.include_tasks: macos.yml
   when:
