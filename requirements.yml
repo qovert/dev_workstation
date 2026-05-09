@@ -1,4 +1,6 @@
 ---
+# macOS-only roles — only required when running against a macOS target.
+# On Fedora/Linux these are never loaded and do not need to be installed.
 roles:
   - name: elliotweiser.osx-command-line-tools
   - name: geerlingguy.homebrew

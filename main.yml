@@ -48,32 +48,6 @@
       tags: always
 
   roles:
-    - role: elliotweiser.osx-command-line-tools
-      become: false
-      when:
-        - is_macos
-        - configure_macos | default(false)
-      tags: macos
-
-    - role: geerlingguy.homebrew
-      become: false
-      when:
-        - is_macos
-        - configure_macos | default(false)
-      tags:
-        - macos
-        - packages
-
-    - role: geerlingguy.mas
-      become: false
-      when:
-        - is_macos
-        - configure_macos | default(false)
-        - configure_mas | default(false)
-      tags:
-        - macos
-        - apps
-
     - role: packages
       tags: packages
 
@@ -86,3 +60,37 @@
 
     - role: system
       tags: system
+
+  tasks:
+    - name: Install Xcode Command Line Tools
+      ansible.builtin.include_role:
+        name: elliotweiser.osx-command-line-tools
+      when:
+        - is_macos
+        - configure_macos | default(false)
+      tags: macos
+
+    - name: Install Homebrew
+      ansible.builtin.include_role:
+        name: geerlingguy.homebrew
+        apply:
+          become: false
+      when:
+        - is_macos
+        - configure_macos | default(false)
+      tags:
+        - macos
+        - packages
+
+    - name: Install Mac App Store CLI
+      ansible.builtin.include_role:
+        name: geerlingguy.mas
+        apply:
+          become: false
+      when:
+        - is_macos
+        - configure_macos | default(false)
+        - configure_mas | default(false)
+      tags:
+        - macos
+        - apps
