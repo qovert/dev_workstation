@@ -45,10 +45,13 @@
   become: true
 
 - name: Install RPM Fusion free and nonfree repositories
+  vars:
+    rpmfusion: https://mirrors.rpmfusion.org
+    ver: "{{ ansible_distribution_major_version }}"
   ansible.builtin.dnf5:
     name:
-      - "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm"
-      - "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+      - "{{ rpmfusion }}/free/fedora/rpmfusion-free-release-{{ ver }}.noarch.rpm"
+      - "{{ rpmfusion }}/nonfree/fedora/rpmfusion-nonfree-release-{{ ver }}.noarch.rpm"
     state: present
   become: true
 

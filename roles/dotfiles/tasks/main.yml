@@ -1,13 +1,13 @@
 ---
 - name: Set chezmoi binary path
   ansible.builtin.set_fact:
-    chezmoi_bin_path: >-
+    dotfiles_chezmoi_bin_path: >-
       {{ '/opt/homebrew/bin/chezmoi'
          if (ansible_facts['system'] == 'Darwin' and ansible_facts['machine'] == 'arm64')
          else '/usr/local/bin/chezmoi'
          if ansible_facts['system'] == 'Darwin'
          else user_home + '/.local/bin/chezmoi' }}
-    chezmoi_data_path: "{{ user_home }}/.local/share/chezmoi"
+    dotfiles_chezmoi_data_path: "{{ user_home }}/.local/share/chezmoi"
 
 - name: Ensure ~/.local/bin exists
   ansible.builtin.file:
@@ -35,34 +35,34 @@
 
 - name: Ensure chezmoi binary is executable
   ansible.builtin.file:
-    path: "{{ chezmoi_bin_path }}"
+    path: "{{ dotfiles_chezmoi_bin_path }}"
     mode: '0755'
   when: ansible_facts['system'] != 'Darwin'
   become: false
 
 - name: Verify chezmoi is available
-  ansible.builtin.command: "{{ chezmoi_bin_path }} --version"
-  register: chezmoi_version_check
+  ansible.builtin.command: "{{ dotfiles_chezmoi_bin_path }} --version"
+  register: dotfiles_chezmoi_version_check
   changed_when: false
-  failed_when: chezmoi_version_check.rc != 0
+  failed_when: dotfiles_chezmoi_version_check.rc != 0
   become: false
 
 - name: Check if chezmoi is initialized
   ansible.builtin.stat:
-    path: "{{ chezmoi_data_path }}/.git"
-  register: chezmoi_initialized
+    path: "{{ dotfiles_chezmoi_data_path }}/.git"
+  register: dotfiles_chezmoi_initialized
 
 - name: Initialize chezmoi with dotfiles repository
-  ansible.builtin.command: "{{ chezmoi_bin_path }} init {{ github_username }}"
-  when: not chezmoi_initialized.stat.exists
+  ansible.builtin.command: "{{ dotfiles_chezmoi_bin_path }} init {{ github_username }}"
+  when: not dotfiles_chezmoi_initialized.stat.exists
   changed_when: true
   become: false
 
 - name: Apply chezmoi configuration
-  ansible.builtin.command: "{{ chezmoi_bin_path }} apply"
-  register: chezmoi_apply
-  changed_when: chezmoi_apply.stdout | length > 0
-  failed_when: chezmoi_apply.rc != 0
+  ansible.builtin.command: "{{ dotfiles_chezmoi_bin_path }} apply"
+  register: dotfiles_chezmoi_apply
+  changed_when: dotfiles_chezmoi_apply.stdout | length > 0
+  failed_when: dotfiles_chezmoi_apply.rc != 0
   become: false
 
 - name: Ensure oh-my-posh themes directory exists
