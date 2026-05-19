@@ -77,4 +77,6 @@ fi
 
 # ── run playbook ───────────────────────────────────────────────────────────────
 info "Running playbook..."
-ansible-playbook main.yml -i "localhost," -c local "$@"
+BECOME_ARGS=()
+[[ "$PLATFORM" != "macos" ]] && BECOME_ARGS=(--ask-become-pass)
+ansible-playbook main.yml -i "localhost," -c local "${BECOME_ARGS[@]}" "$@"

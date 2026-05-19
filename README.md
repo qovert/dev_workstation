@@ -11,6 +11,7 @@ An Ansible playbook for automated workstation setup.
 | Platform | Status |
 |---|---|
 | Fedora 41+ | Primary |
+| Fedora Silverblue 41+ | Primary |
 | macOS (Apple Silicon / Intel) | Secondary |
 | Debian / Ubuntu | Untested |
 
@@ -23,6 +24,23 @@ sudo dnf install ansible
 ansible-galaxy collection install -r requirements.yml
 ansible-playbook main.yml -i localhost, -c local --ask-become-pass
 ```
+
+### Fedora Silverblue
+
+`pip` and `pipx` are not included in the base Silverblue image. Layer `pipx` onto the host first, then reboot:
+
+```bash
+sudo rpm-ostree install pipx
+systemctl reboot
+```
+
+After rebooting, run the bootstrap script **from the host** (not from inside a toolbox):
+
+```bash
+bash bootstrap.sh
+```
+
+The script installs Ansible via `pipx`, installs Galaxy dependencies, and runs the playbook. It will prompt for your sudo password to handle `rpm-ostree` layering and Flatpak setup.
 
 ### macOS
 
@@ -64,6 +82,11 @@ All other values in `default.config.yml` are reasonable defaults — override on
 - Upgrades the core group for AppStream metadata
 - Installs DNF packages (see `fedora_packages` in `default.config.yml`)
 - Adds Flathub (system + user remotes) and installs Flatpak apps per-user
+
+### Fedora Silverblue
+- Layers a minimal set of host packages via `rpm-ostree` (see `silverblue_host_packages` in `default.config.yml`)
+- Creates a default Fedora toolbox and installs CLI dev tools inside it (see `silverblue_toolbox_packages`)
+- Adds Flathub and installs Flatpak apps per-user, including Silverblue-specific extras (VS Code, 1Password, Zed)
 
 ### macOS
 - Installs Homebrew, formulae, and casks via [geerlingguy.homebrew](https://github.com/geerlingguy/ansible-role-homebrew)
