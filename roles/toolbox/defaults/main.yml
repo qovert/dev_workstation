@@ -1,4 +1,3 @@
 ---
 # Fallback defaults — override these in default.config.yml
-fedora_flatpak_apps: []
-silverblue_extra_flatpak_apps: []
+silverblue_toolbox_packages: []

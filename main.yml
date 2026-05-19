@@ -30,12 +30,19 @@
       when: configure_dotfiles | default(false)
       tags: always
 
+    - name: Detect ostree (Silverblue)
+      ansible.builtin.stat:
+        path: /run/ostree-booted
+      register: ostree_booted_stat
+      tags: always
+
     - name: Set OS facts
       ansible.builtin.set_fact:
         is_macos: "{{ ansible_system == 'Darwin' }}"
         is_fedora: "{{ ansible_distribution == 'Fedora' }}"
         is_debian: "{{ ansible_os_family == 'Debian' }}"
         is_linux: "{{ ansible_system == 'Linux' }}"
+        is_silverblue: "{{ ansible_distribution == 'Fedora' and ostree_booted_stat.stat.exists }}"
         user_home: "{{ lookup('env', 'HOME') }}"
       tags: always
 
@@ -53,6 +60,9 @@
 
     - role: apps
       tags: apps
+
+    - role: toolbox
+      tags: toolbox
 
     - role: dotfiles
       when: configure_dotfiles | default(false)

@@ -1,0 +1,6 @@
+---
+- name: Host layer changed
+  ansible.builtin.debug:
+    msg: >-
+      rpm-ostree changes staged. Reboot to activate the new host layer.
+  listen: Host layer changed

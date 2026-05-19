@@ -1,0 +1,6 @@
+---
+- name: Configure Fedora toolbox (Silverblue)
+  ansible.builtin.include_tasks: silverblue.yml
+  when:
+    - is_silverblue | default(false)
+    - configure_linux | default(false)

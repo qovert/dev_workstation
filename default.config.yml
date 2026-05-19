@@ -106,7 +106,7 @@ dockitems_persist:
     pos: 5
 
 # =============================================================================
-# Fedora — DNF packages
+# Fedora — DNF packages (standard Fedora only; not used on Silverblue)
 # =============================================================================
 fedora_packages:
   - 1password
@@ -123,7 +123,37 @@ fedora_packages:
   - ncdu
   - oh-my-posh
   - powershell
-  - tilix
+  - ptyxis
+  - zed
+  - tree
+  - vim
+  - wget
+  - yq
+  - zsh
+
+# =============================================================================
+# Silverblue — host layer (rpm-ostree)
+# Keep this list as short as possible: only what must live outside a container.
+# =============================================================================
+silverblue_host_packages:
+  - zsh           # login shell must be on host
+  - fuse-libs     # required for Flatpak portal / AppImage via Gearlever
+  - gnome-tweaks  # no Flatpak available
+  - microsoft-edge-stable
+
+# =============================================================================
+# Silverblue — toolbox packages (installed inside the default Fedora toolbox)
+# All CLI dev tools go here; home dir is shared so dotfiles work automatically.
+# Note: powershell needs the Microsoft repo enabled inside the toolbox first;
+# add it manually with: toolbox run sudo dnf install -y powershell
+# =============================================================================
+silverblue_toolbox_packages:
+  - btop
+  - direnv
+  - gh
+  - git
+  - jq
+  - ncdu
   - tree
   - vim
   - wget
@@ -141,6 +171,14 @@ fedora_flatpak_apps:
   - md.obsidian.Obsidian
   - org.kde.krita
   - org.qbittorrent.qBittorrent
+
+# =============================================================================
+# Silverblue — extra Flatpaks (apps that replace dnf packages on Silverblue)
+# =============================================================================
+silverblue_extra_flatpak_apps:
+  - com.1password.1Password
+  - com.visualstudio.code
+  - dev.zed.Zed
 
 # =============================================================================
 # oh-my-posh themes

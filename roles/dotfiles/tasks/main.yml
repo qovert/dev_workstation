@@ -65,6 +65,21 @@
   failed_when: dotfiles_chezmoi_apply.rc != 0
   become: false
 
+- name: Install oh-my-posh binary to ~/.local/bin (Silverblue)
+  ansible.builtin.get_url:
+    url: >-
+      https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-{{
+        'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}
+    dest: "{{ user_home }}/.local/bin/oh-my-posh"
+    mode: '0755'
+    force: false
+  become: false
+  when:
+    - is_silverblue | default(false)
+    - ansible_facts['system'] != 'Darwin'
+  retries: 3
+  delay: 5
+
 - name: Ensure oh-my-posh themes directory exists
   ansible.builtin.file:
     path: "{{ user_home }}/.config/omp_themes"

@@ -21,5 +21,5 @@
     state: present
     remote: flathub
     method: user
-  loop: "{{ fedora_flatpak_apps }}"
+  loop: "{{ fedora_flatpak_apps + (silverblue_extra_flatpak_apps if is_silverblue | default(false) else []) }}"
   become: false

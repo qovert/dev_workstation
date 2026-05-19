@@ -1,0 +1,28 @@
+---
+- name: Import Microsoft GPG key
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://packages.microsoft.com/keys/microsoft.asc
+  become: true
+
+- name: Add Microsoft Edge repository
+  ansible.builtin.copy:
+    content: |
+      [microsoft-edge]
+      name=Microsoft Edge
+      baseurl=https://packages.microsoft.com/yumrepos/edge
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+    dest: /etc/yum.repos.d/microsoft-edge.repo
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Layer host packages (rpm-ostree)
+  community.general.rpm_ostree_pkg:
+    name: "{{ silverblue_host_packages }}"
+    state: present
+  become: true
+  notify: Host layer changed
