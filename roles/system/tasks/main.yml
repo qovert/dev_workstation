@@ -3,6 +3,7 @@
   ansible.builtin.command: which zsh
   register: zsh_binary
   changed_when: false
+  failed_when: false
   become: false
 
 - name: Set default shell to zsh
@@ -10,6 +11,14 @@
     name: "{{ system_user | default(lookup('env', 'USER')) }}"
     shell: "{{ zsh_binary.stdout }}"
   become: true
+  when: zsh_binary.rc == 0
+
+- name: Warn that zsh shell change requires reboot
+  ansible.builtin.debug:
+    msg: >-
+      zsh not found on PATH — skipping default shell change.
+      On Silverblue, reboot to activate the rpm-ostree layer, then re-run the playbook.
+  when: zsh_binary.rc != 0
 
 - name: Configure macOS system defaults
   ansible.builtin.include_tasks: macos.yml
