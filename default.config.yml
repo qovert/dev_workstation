@@ -176,7 +176,7 @@ fedora_flatpak_apps:
 # Silverblue — extra Flatpaks (apps that replace dnf packages on Silverblue)
 # =============================================================================
 silverblue_extra_flatpak_apps:
-  - com.1password.1Password
+  - com.onepassword.OnePassword
   - com.visualstudio.code
   - dev.zed.Zed
 
