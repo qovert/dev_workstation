@@ -137,6 +137,7 @@ fedora_packages:
 # =============================================================================
 silverblue_host_packages:
   - zsh           # login shell must be on host
+  - vim           # used heavily; available before any toolbox exists
   - fuse-libs     # required for Flatpak portal / AppImage via Gearlever
   - gnome-tweaks  # no Flatpak available
   - microsoft-edge-stable
