@@ -15,11 +15,22 @@
     method: user
   become: false
 
+- name: List installed Flatpak applications
+  ansible.builtin.command: flatpak list --app --columns=application
+  register: flatpak_installed
+  changed_when: false
+  become: false
+
 - name: Install Flatpak applications (user)
-  community.general.flatpak:
-    name: "{{ item }}"
-    state: present
-    remote: flathub
-    method: user
+  ansible.builtin.command:
+    argv:
+      - flatpak
+      - install
+      - --user
+      - --noninteractive
+      - flathub
+      - "{{ item }}"
   loop: "{{ fedora_flatpak_apps + (silverblue_extra_flatpak_apps if is_silverblue | default(false) else []) }}"
+  when: item not in flatpak_installed.stdout_lines
+  changed_when: true
   become: false
