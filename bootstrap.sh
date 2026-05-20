@@ -50,7 +50,7 @@ case "$PLATFORM" in
         python3 -m pip install --user pipx 2>/dev/null \
           || python3 -m pip install --user pipx --break-system-packages
       fi
-      pipx install ansible
+      pipx install ansible-core
     fi
     ;;
 
