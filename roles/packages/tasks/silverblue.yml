@@ -1,10 +1,4 @@
 ---
-- name: Import Microsoft GPG key
-  ansible.builtin.rpm_key:
-    state: present
-    key: https://packages.microsoft.com/keys/microsoft.asc
-  become: true
-
 - name: Add Microsoft Edge repository
   ansible.builtin.copy:
     content: |
