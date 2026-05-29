@@ -30,7 +30,7 @@
       - --noninteractive
       - flathub
       - "{{ item }}"
-  loop: "{{ fedora_flatpak_apps + (silverblue_extra_flatpak_apps if is_silverblue | default(false) else []) }}"
+  loop: "{{ fedora_flatpak_apps + (silverblue_extra_flatpak_apps if is_silverblue | default(false) | bool else []) }}"
   when: item not in flatpak_installed.stdout_lines
   changed_when: true
   become: false

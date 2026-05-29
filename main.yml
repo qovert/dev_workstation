@@ -27,7 +27,7 @@
         fail_msg: >-
           github_username must be set in default.config.yml or passed via
           -e github_username=<your-github-username>
-      when: configure_dotfiles | default(false)
+      when: configure_dotfiles | default(false) | bool
       tags: always
 
     - name: Detect ostree (Silverblue)
@@ -66,7 +66,7 @@
       tags: toolbox
 
     - role: dotfiles
-      when: configure_dotfiles | default(false)
+      when: configure_dotfiles | default(false) | bool
       tags: dotfiles
 
     - role: system
@@ -78,7 +78,7 @@
         name: elliotweiser.osx-command-line-tools
       when:
         - is_macos
-        - configure_macos | default(false)
+        - configure_macos | default(false) | bool
       tags: macos
 
     - name: Install Homebrew
@@ -88,7 +88,7 @@
           become: false
       when:
         - is_macos
-        - configure_macos | default(false)
+        - configure_macos | default(false) | bool
       tags:
         - macos
         - packages
@@ -100,8 +100,8 @@
           become: false
       when:
         - is_macos
-        - configure_macos | default(false)
-        - configure_mas | default(false)
+        - configure_macos | default(false) | bool
+        - configure_mas | default(false) | bool
       tags:
         - macos
         - apps

@@ -75,7 +75,7 @@
     force: false
   become: false
   when:
-    - is_silverblue | default(false)
+    - is_silverblue | default(false) | bool
     - ansible_facts['system'] != 'Darwin'
   retries: 3
   delay: 5

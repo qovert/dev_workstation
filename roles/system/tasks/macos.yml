@@ -31,4 +31,4 @@
 - name: Configure Dock items
   ansible.builtin.include_role:
     name: geerlingguy.mac.dock
-  when: configure_dock | default(false)
+  when: configure_dock | default(false) | bool

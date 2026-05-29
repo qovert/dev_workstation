@@ -2,18 +2,18 @@
 - name: Configure Fedora packages (standard)
   ansible.builtin.include_tasks: fedora.yml
   when:
-    - is_fedora | default(false)
-    - not is_silverblue | default(false)
-    - configure_linux | default(false)
+    - is_fedora | default(false) | bool
+    - not (is_silverblue | default(false) | bool)
+    - configure_linux | default(false) | bool
 
 - name: Configure Silverblue host packages
   ansible.builtin.include_tasks: silverblue.yml
   when:
-    - is_silverblue | default(false)
-    - configure_linux | default(false)
+    - is_silverblue | default(false) | bool
+    - configure_linux | default(false) | bool
 
 - name: Configure Debian packages
   ansible.builtin.include_tasks: debian.yml
   when:
-    - is_debian | default(false)
-    - configure_linux | default(false)
+    - is_debian | default(false) | bool
+    - configure_linux | default(false) | bool
