@@ -93,7 +93,7 @@
   tags: molecule-notest
 
 - name: Install Fedora packages
-  ansible.builtin.dnf5:
+  ansible.builtin.package:
     name: "{{ fedora_packages }}"
     state: present
   become: true

@@ -20,6 +20,7 @@ provisioner:
   name: ansible
   env:
     ANSIBLE_ROLES_PATH: "../../roles"
+    ANSIBLE_VERBOSITY: "1"
   inventory:
     group_vars:
       all:
@@ -31,6 +32,7 @@ provisioner:
         github_username: "test-user"
         system_user: root
         user_home: /root
+        ansible_python_interpreter: auto_silent
 verifier:
   name: ansible
 scenario:

@@ -21,7 +21,6 @@
       - btop
       - direnv
       - flatpak
-      - fuse-libs
       - gh
       - git
       - jq
@@ -29,7 +28,6 @@
       - tree
       - vim
       - wget
-      - yq
       - zsh
 
   pre_tasks:
