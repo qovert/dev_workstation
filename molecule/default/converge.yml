@@ -14,8 +14,9 @@
     configure_mas: false
     configure_dock: false
     github_username: "test-user"
-    # CI-safe subset: omit GUI desktop apps and third-party packages that are
-    # unreliable or unavailable in the headless Docker test container.
+    # CI-safe subset: base Fedora repos only. External repo setup tasks
+    # (Microsoft, RPM Fusion, Terra) are tagged molecule-notest and skipped,
+    # so only packages available without those repos are listed here.
     fedora_packages:
       - btop
       - direnv
@@ -25,7 +26,6 @@
       - git
       - jq
       - ncdu
-      - oh-my-posh
       - tree
       - vim
       - wget

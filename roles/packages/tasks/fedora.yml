@@ -4,6 +4,7 @@
     state: present
     key: https://packages.microsoft.com/keys/microsoft.asc
   become: true
+  tags: molecule-notest
 
 - name: Add Microsoft packages repository
   ansible.builtin.get_url:
@@ -13,6 +14,7 @@
     group: root
     mode: '0644'
   become: true
+  tags: molecule-notest
 
 - name: Add Visual Studio Code repository
   ansible.builtin.copy:
@@ -54,6 +56,7 @@
       - "{{ rpmfusion }}/nonfree/fedora/rpmfusion-nonfree-release-{{ ver }}.noarch.rpm"
     state: present
   become: true
+  tags: molecule-notest
 
 - name: Gather package facts
   ansible.builtin.package_facts:
@@ -65,18 +68,21 @@
   when: "'terra-release' not in ansible_facts.packages"
   changed_when: true
   become: true
+  tags: molecule-notest
 
 - name: Upgrade core group for AppStream metadata
   ansible.builtin.dnf5:
     name: "@core"
     state: present
   become: true
+  tags: molecule-notest
 
 - name: Check dnf4 availability
   ansible.builtin.command: which dnf4
   register: dnf4_path
   changed_when: false
   failed_when: false
+  tags: molecule-notest
 
 - name: Install core group via dnf4 for AppStream metadata
   ansible.builtin.command: dnf4 group install -y core
@@ -84,6 +90,7 @@
   register: dnf4_core
   changed_when: "'Nothing to do' not in dnf4_core.stdout"
   when: dnf4_path.rc == 0
+  tags: molecule-notest
 
 - name: Install Fedora packages
   ansible.builtin.dnf5:
