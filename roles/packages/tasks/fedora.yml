@@ -55,6 +55,7 @@
       - "{{ rpmfusion }}/free/fedora/rpmfusion-free-release-{{ ver }}.noarch.rpm"
       - "{{ rpmfusion }}/nonfree/fedora/rpmfusion-nonfree-release-{{ ver }}.noarch.rpm"
     state: present
+    disable_gpg_check: true
   become: true
   tags: molecule-notest
 
