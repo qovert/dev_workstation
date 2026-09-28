@@ -63,11 +63,14 @@
   ansible.builtin.package_facts:
     manager: rpm
 
-- name: Install Terra repository
-  ansible.builtin.command:
-    cmd: dnf install -y --nogpgcheck --repofrompath terra,https://repos.fyralabs.com/terra$releasever terra-release
-  when: "'terra-release' not in ansible_facts.packages"
-  changed_when: true
+# Terra was dropped: it was bootstrapped with --nogpgcheck and its metadata
+# started failing dnf4's signature check. Remove it where it's still present.
+- name: Remove Terra repository
+  ansible.builtin.dnf5:
+    name:
+      - terra-release
+      - terra-gpg-keys
+    state: absent
   become: true
   tags: molecule-notest
 

@@ -121,10 +121,8 @@ fedora_packages:
   - gnome-tweaks
   - jq
   - ncdu
-  - oh-my-posh
   - powershell
   - ptyxis
-  - zed
   - tree
   - vim
   - wget
@@ -169,6 +167,7 @@ fedora_flatpak_apps:
   - com.github.johnfactotum.Foliate
   - eu.betterbird.Betterbird
   - it.mijorus.gearlever
+  - dev.zed.Zed
   - md.obsidian.Obsidian
   - org.kde.krita
   - org.qbittorrent.qBittorrent
@@ -179,7 +178,6 @@ fedora_flatpak_apps:
 silverblue_extra_flatpak_apps:
   - com.onepassword.OnePassword
   - com.visualstudio.code
-  - dev.zed.Zed
 
 # =============================================================================
 # oh-my-posh themes

@@ -74,11 +74,11 @@ All other values in `default.config.yml` are reasonable defaults — override on
 
 ### All platforms
 - Installs and initialises [chezmoi](https://www.chezmoi.io/) from `github.com/<github_username>/dotfiles`
-- Downloads oh-my-posh themes
+- Installs oh-my-posh (Linux: release binary to `~/.local/bin`) and downloads its themes
 
 ### Fedora
 - Bootstraps DNF Python bindings (`python3-libdnf5`) for Ansible on Fedora 41+
-- Adds repositories: Microsoft (PowerShell/dotnet), VS Code, 1Password, RPM Fusion (free + nonfree), Terra
+- Adds repositories: Microsoft (PowerShell/dotnet), VS Code, 1Password, RPM Fusion (free + nonfree)
 - Upgrades the core group for AppStream metadata
 - Installs DNF packages (see `fedora_packages` in `default.config.yml`)
 - Adds Flathub (system + user remotes) and installs Flatpak apps per-user
@@ -86,7 +86,7 @@ All other values in `default.config.yml` are reasonable defaults — override on
 ### Fedora Silverblue
 - Layers a minimal set of host packages via `rpm-ostree` (see `silverblue_host_packages` in `default.config.yml`)
 - Creates a default Fedora toolbox and installs CLI dev tools inside it (see `silverblue_toolbox_packages`)
-- Adds Flathub and installs Flatpak apps per-user, including Silverblue-specific extras (VS Code, 1Password, Zed)
+- Adds Flathub and installs Flatpak apps per-user, including Silverblue-specific extras (VS Code, 1Password)
 
 ### macOS
 - Installs Homebrew, formulae, and casks via [geerlingguy.homebrew](https://github.com/geerlingguy/ansible-role-homebrew)

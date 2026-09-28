@@ -65,7 +65,7 @@
   failed_when: dotfiles_chezmoi_apply.rc != 0
   become: false
 
-- name: Install oh-my-posh binary to ~/.local/bin (Silverblue)
+- name: Install oh-my-posh binary to ~/.local/bin (Linux)
   ansible.builtin.get_url:
     url: >-
       https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-{{
@@ -74,9 +74,7 @@
     mode: '0755'
     force: false
   become: false
-  when:
-    - is_silverblue | default(false) | bool
-    - ansible_facts['system'] != 'Darwin'
+  when: ansible_facts['system'] != 'Darwin'
   retries: 3
   delay: 5
 
