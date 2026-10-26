@@ -1,0 +1,6 @@
+---
+galaxy_info:
+  author: qovert
+  description: Sway session alongside GNOME, plus Sunshine/wayvnc remote access
+  license: MIT
+  min_ansible_version: "2.15"

@@ -1,0 +1,107 @@
+---
+# Installs sway as an extra GDM session; GNOME is left untouched.
+# The sway, waybar, sunshine and wayvnc configs themselves live in chezmoi.
+
+- name: Install sway session packages
+  ansible.builtin.dnf5:
+    name: "{{ sway_packages }}"
+    state: present
+  become: true
+  retries: 3
+  delay: 5
+  register: sway_dnf_result
+  until: sway_dnf_result is succeeded
+
+# --- Sunshine (Moonlight host) -----------------------------------------------
+
+- name: Add Sunshine COPR repository
+  vars:
+    copr: https://copr.fedorainfracloud.org/coprs/lizardbyte/stable/repo
+    ver: "{{ ansible_distribution_major_version }}"
+  ansible.builtin.get_url:
+    url: "{{ copr }}/fedora-{{ ver }}/lizardbyte-stable-fedora-{{ ver }}.repo"
+    dest: /etc/yum.repos.d/_copr_lizardbyte-stable.repo
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  when: sway_enable_sunshine | bool
+  tags: molecule-notest
+
+- name: Install Sunshine
+  ansible.builtin.dnf5:
+    name: Sunshine
+    state: present
+  become: true
+  when: sway_enable_sunshine | bool
+  tags: molecule-notest
+
+# Sunshine injects keyboard/mouse input through /dev/uinput.
+- name: Load uinput module at boot
+  ansible.builtin.copy:
+    content: "uinput\n"
+    dest: /etc/modules-load.d/uinput.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  when: sway_enable_sunshine | bool
+
+- name: Load uinput module now
+  community.general.modprobe:
+    name: uinput
+    state: present
+  become: true
+  when: sway_enable_sunshine | bool
+  tags: molecule-notest
+
+- name: Grant the logged-in user access to uinput
+  ansible.builtin.copy:
+    content: |
+      KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", TAG+="uaccess"
+    dest: /etc/udev/rules.d/60-sunshine-uinput.rules
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  when: sway_enable_sunshine | bool
+  notify: Reload udev rules
+
+# --- wayvnc (clipboard-capable fallback) -------------------------------------
+
+- name: Add PAM service for wayvnc password auth
+  ansible.builtin.copy:
+    content: |
+      auth     include  system-auth
+      account  include  system-auth
+    dest: /etc/pam.d/wayvnc
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  when: sway_enable_wayvnc | bool
+
+- name: Ensure wayvnc config directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/wayvnc"
+    state: directory
+    mode: '0700'
+  become: false
+  when: sway_enable_wayvnc | bool
+
+# Encrypts VNC sessions (RSA-AES); kept out of chezmoi because it's a secret.
+- name: Generate wayvnc RSA key
+  ansible.builtin.command:
+    argv:
+      - ssh-keygen
+      - -m
+      - pem
+      - -t
+      - rsa
+      - -N
+      - ""
+      - -f
+      - "{{ user_home }}/.config/wayvnc/rsa_key.pem"
+    creates: "{{ user_home }}/.config/wayvnc/rsa_key.pem"
+  become: false
+  when: sway_enable_wayvnc | bool

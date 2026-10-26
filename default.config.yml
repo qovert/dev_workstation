@@ -13,6 +13,7 @@ configure_macos: true
 configure_linux: true
 configure_mas: false  # requires prior App Store sign-in
 configure_dock: true
+configure_sway: false  # sway session alongside GNOME (Fedora only)
 
 # =============================================================================
 # macOS — Homebrew formulae
@@ -128,6 +129,36 @@ fedora_packages:
   - wget
   - yq
   - zsh
+
+# =============================================================================
+# Fedora — sway session (configure_sway must be true)
+# Installed next to GNOME; pick "Sway" from the GDM gear menu to use it.
+# Configs for sway, waybar, sunshine and wayvnc come from chezmoi.
+# =============================================================================
+sway_packages:
+  - blueman
+  - cliphist
+  - fuzzel
+  - grim
+  - jq
+  - lxqt-policykit
+  - mako
+  - network-manager-applet
+  - pavucontrol
+  - playerctl
+  - slurp
+  - sway
+  - sway-config-fedora
+  - swaybg
+  - swayidle
+  - swaylock
+  - waybar
+  - wayvnc
+  - wl-clipboard
+  - xdg-desktop-portal-wlr
+
+sway_enable_sunshine: true  # Moonlight streaming host (lizardbyte COPR)
+sway_enable_wayvnc: false   # VNC fallback with clipboard sync; also uncomment its exec in the sway config
 
 # =============================================================================
 # Silverblue — host layer (rpm-ostree)

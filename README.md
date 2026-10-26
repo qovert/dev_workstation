@@ -83,6 +83,22 @@ All other values in `default.config.yml` are reasonable defaults — override on
 - Installs DNF packages (see `fedora_packages` in `default.config.yml`)
 - Adds Flathub (system + user remotes) and installs Flatpak apps per-user
 
+### Fedora sway session (`configure_sway: true`)
+- Installs sway, waybar, fuzzel, swaylock/swayidle, mako, cliphist and portals as an extra GDM session; GNOME stays as it is
+- Adds the lizardbyte COPR and installs [Sunshine](https://github.com/LizardByte/Sunshine) for Moonlight streaming, with uinput access for remote input
+- Optional (`sway_enable_wayvnc: true`): sets up [wayvnc](https://github.com/any1/wayvnc) password (PAM) auth and
+  generates its RSA key, as a VNC fallback with clipboard sync. Off by default; its `exec` in the sway config is
+  commented out
+- The sway, waybar and Sunshine configs, the `remote-on`/`remote-off` scripts, and two systemd user units live in the
+  chezmoi dotfiles. The units run `~/.config/autostart` under sway, and start toolbox containers at login, because
+  Ptyxis can't open a tab in a stopped container
+
+After the first run: log into the "Sway" session, open `https://localhost:47990` to create the Sunshine login, and
+pair Moonlight from the client. Set Moonlight's resolution to Native and enable "Capture system keyboard shortcuts" so
+Super combos reach sway. When a client connects, `remote-on` moves the session to a virtual output sized for it and
+turns the local monitors off; a sway reload during the session keeps that layout. `remote-off` (or Super+Ctrl+Shift+R)
+restores the monitors.
+
 ### Fedora Silverblue
 - Layers a minimal set of host packages via `rpm-ostree` (see `silverblue_host_packages` in `default.config.yml`)
 - Creates a default Fedora toolbox and installs CLI dev tools inside it (see `silverblue_toolbox_packages`)
@@ -104,6 +120,7 @@ configure_linux: true      # Fedora/Debian tasks
 configure_macos: true      # macOS tasks
 configure_mas: false       # App Store (requires prior sign-in)
 configure_dock: true       # macOS Dock management
+configure_sway: false      # sway session + Sunshine (Fedora)
 ```
 
 ## Project structure
@@ -121,6 +138,7 @@ dev_workstation/
 │   │   └── tasks/
 │   │       ├── main.yml
 │   │       └── fedora.yml
+│   ├── sway/              # sway session, Sunshine, optional wayvnc (Fedora)
 │   ├── dotfiles/          # chezmoi install, init, apply
 │   │   └── tasks/
 │   └── system/            # OS-level config (macOS defaults, Dock)
@@ -143,6 +161,7 @@ Run specific roles without executing the full playbook:
 ansible-playbook main.yml -i localhost, -c local --ask-become-pass --tags packages
 ansible-playbook main.yml -i localhost, -c local --ask-become-pass --tags apps
 ansible-playbook main.yml -i localhost, -c local --ask-become-pass --tags dotfiles
+ansible-playbook main.yml -i localhost, -c local --ask-become-pass --tags sway
 ansible-playbook main.yml -i localhost, -c local --ask-become-pass --tags system
 ```
 

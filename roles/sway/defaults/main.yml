@@ -1,0 +1,5 @@
+---
+# Fallback defaults — override these in default.config.yml
+sway_packages: []
+sway_enable_sunshine: true
+sway_enable_wayvnc: false

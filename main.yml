@@ -65,6 +65,13 @@
     - role: toolbox
       tags: toolbox
 
+    - role: sway
+      when:
+        - is_fedora | bool
+        - not is_silverblue | bool
+        - configure_sway | default(false) | bool
+      tags: sway
+
     - role: dotfiles
       when: configure_dotfiles | default(false) | bool
       tags: dotfiles
