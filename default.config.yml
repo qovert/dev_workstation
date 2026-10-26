@@ -139,6 +139,7 @@ sway_packages:
   - blueman
   - cliphist
   - fuzzel
+  - gamescope  # wraps XWayland games at native res on the 1.5x output
   - grim
   - jq
   - lxqt-policykit
