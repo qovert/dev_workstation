@@ -89,9 +89,9 @@ All other values in `default.config.yml` are reasonable defaults — override on
 - Optional (`sway_enable_wayvnc: true`): sets up [wayvnc](https://github.com/any1/wayvnc) password (PAM) auth and
   generates its RSA key, as a VNC fallback with clipboard sync. Off by default; its `exec` in the sway config is
   commented out
-- The sway, waybar and Sunshine configs, the `remote-on`/`remote-off` scripts, and two systemd user units live in the
-  chezmoi dotfiles. The units run `~/.config/autostart` under sway, and start toolbox containers at login, because
-  Ptyxis can't open a tab in a stopped container
+- The sway, waybar and Sunshine configs, the `remote-on`/`remote-off` scripts, and the systemd user units live in the
+  chezmoi dotfiles. They run `~/.config/autostart` under sway, start toolbox containers at login (Ptyxis can't open a
+  tab in a stopped container), and run Sunshine's packaged unit in the sway session only, restarting it if it dies
 
 After the first run: log into the "Sway" session, open `https://localhost:47990` to create the Sunshine login, and
 pair Moonlight from the client. Set Moonlight's resolution to Native and enable "Capture system keyboard shortcuts" so
