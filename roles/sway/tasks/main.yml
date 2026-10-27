@@ -30,6 +30,23 @@
   become: false
   tags: molecule-notest
 
+# waybar has its own bluetooth tile. Only blueman's tray icon (the
+# StatusNotifierItem plugin; StatusIcon itself can't be unloaded) is turned off;
+# the applet keeps running as the pairing agent.
+- name: Check blueman plugin list
+  ansible.builtin.command: gsettings get org.blueman.general plugin-list
+  register: sway_blueman_plugins
+  changed_when: false
+  become: false
+  tags: molecule-notest
+
+- name: Hide the blueman tray icon
+  ansible.builtin.command: gsettings set org.blueman.general plugin-list "['!StatusNotifierItem']"
+  when: "'!StatusNotifierItem' not in sway_blueman_plugins.stdout"
+  changed_when: true
+  become: false
+  tags: molecule-notest
+
 # --- Sunshine (Moonlight host) -----------------------------------------------
 
 - name: Add Sunshine COPR repository
