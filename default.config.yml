@@ -140,6 +140,7 @@ sway_packages:
   - cliphist
   - fuzzel
   - gamescope  # wraps XWayland games at native res on the 1.5x output
+  - ghostty  # sway $term; Ptyxis stays for GNOME
   - grim
   - jq
   - lxqt-policykit
