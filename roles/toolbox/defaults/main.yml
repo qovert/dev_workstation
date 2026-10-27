@@ -1,3 +1,7 @@
 ---
 # Fallback defaults — override these in default.config.yml
 silverblue_toolbox_packages: []
+toolboxes: []
+toolbox_common_packages:
+  fedora: []
+  arch: []

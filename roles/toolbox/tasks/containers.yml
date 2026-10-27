@@ -1,0 +1,35 @@
+---
+# Toolboxes share $HOME but not /usr, so ghostty's terminfo (shipped with the
+# host's ghostty package) is missing inside them. A copy in ~/.terminfo
+# covers every container at once.
+- name: Check for ghostty terminfo on the host
+  ansible.builtin.command: infocmp -x xterm-ghostty
+  register: toolbox_ghostty_terminfo
+  changed_when: false
+  failed_when: false
+  become: false
+
+- name: Compile ghostty terminfo into ~/.terminfo
+  ansible.builtin.shell: >-
+    set -o pipefail &&
+    infocmp -x xterm-ghostty | tic -x -o {{ user_home }}/.terminfo -
+  args:
+    creates: "{{ user_home }}/.terminfo/x/xterm-ghostty"
+    executable: /bin/bash
+  when: toolbox_ghostty_terminfo.rc == 0
+  become: false
+
+- name: List existing toolbox containers
+  ansible.builtin.command: >-
+    podman ps -a --filter label=com.github.containers.toolbox=true --format {% raw %}'{{.Names}}'{% endraw %}
+  register: toolbox_existing
+  changed_when: false
+  become: false
+  tags: molecule-notest
+
+- name: Create and provision each toolbox
+  ansible.builtin.include_tasks: container.yml
+  loop: "{{ toolboxes }}"
+  loop_control:
+    loop_var: toolbox
+    label: "{{ toolbox.name }}"

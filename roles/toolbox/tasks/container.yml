@@ -1,0 +1,42 @@
+---
+# One entry of `toolboxes`: {name, image, packages?}. Containers are only
+# created, never removed or recreated; rename by removing one by hand.
+- name: "Create toolbox {{ toolbox.name }}"
+  ansible.builtin.command: >-
+    toolbox create --assumeyes --image {{ toolbox.image }} {{ toolbox.name }}
+  when: toolbox.name not in toolbox_existing.stdout_lines
+  changed_when: true
+  become: false
+  tags: molecule-notest
+
+- name: "Detect the package manager in {{ toolbox.name }}"
+  ansible.builtin.command: >-
+    toolbox run -c {{ toolbox.name }} sh -c 'command -v pacman >/dev/null && echo arch || echo fedora'
+  register: toolbox_family
+  changed_when: false
+  become: false
+  tags: molecule-notest
+
+- name: "Install packages with dnf in {{ toolbox.name }}"
+  vars:
+    pkgs: "{{ toolbox_common_packages.fedora + (toolbox.packages | default([])) }}"
+  ansible.builtin.command: >-
+    toolbox run -c {{ toolbox.name }} sudo dnf install -y {{ pkgs | join(' ') }}
+  register: toolbox_dnf
+  changed_when: "'Nothing to do' not in toolbox_dnf.stdout"
+  when: toolbox_family.stdout | trim == 'fedora'
+  become: false
+  tags: molecule-notest
+
+# Arch can't install with -S alone (partial upgrades); -Syu --needed upgrades
+# the container and skips what's already there.
+- name: "Install packages with pacman in {{ toolbox.name }}"
+  vars:
+    pkgs: "{{ toolbox_common_packages.arch + (toolbox.packages | default([])) }}"
+  ansible.builtin.command: >-
+    toolbox run -c {{ toolbox.name }} sudo pacman -Syu --needed --noconfirm {{ pkgs | join(' ') }}
+  register: toolbox_pacman
+  changed_when: "'there is nothing to do' not in toolbox_pacman.stdout"
+  when: toolbox_family.stdout | trim == 'arch'
+  become: false
+  tags: molecule-notest

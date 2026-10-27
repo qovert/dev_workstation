@@ -4,3 +4,10 @@
   when:
     - is_silverblue | default(false) | bool
     - configure_linux | default(false) | bool
+
+- name: Configure declared toolboxes
+  ansible.builtin.include_tasks: containers.yml
+  when:
+    - is_fedora | default(false) | bool
+    - configure_linux | default(false) | bool
+    - toolboxes | length > 0

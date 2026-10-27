@@ -193,6 +193,21 @@ silverblue_toolbox_packages:
   - zsh
 
 # =============================================================================
+# Toolboxes (Fedora hosts) — created if missing, never removed. Every box gets
+# toolbox_common_packages for its distro plus its own `packages`. Override the
+# list in config.yml; rename a box by removing it by hand first.
+# =============================================================================
+toolboxes:
+  - name: fedora-toolbox-44
+    image: registry.fedoraproject.org/fedora-toolbox:44
+  - name: arch
+    image: quay.io/toolbx/arch-toolbox:latest
+
+toolbox_common_packages:
+  fedora: [git, zsh, vim-enhanced, curl, python3, tmux, jq, ripgrep, fd-find, unzip, wget, make, openssh-clients]
+  arch: [git, zsh, vim, curl, python, tmux, jq, ripgrep, fd, unzip, wget, make, openssh]
+
+# =============================================================================
 # Fedora — Flatpak applications
 # =============================================================================
 fedora_flatpak_apps:

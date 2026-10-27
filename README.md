@@ -82,6 +82,10 @@ All other values in `default.config.yml` are reasonable defaults — override on
 - Upgrades the core group for AppStream metadata
 - Installs DNF packages (see `fedora_packages` in `default.config.yml`)
 - Adds Flathub (system + user remotes) and installs Flatpak apps per-user
+- Creates the toolboxes listed in `toolboxes` (name + image, Fedora or Arch) if they're missing, and installs
+  `toolbox_common_packages` plus each box's own `packages` with dnf or pacman. It never removes or recreates a
+  container. It also compiles ghostty's terminfo into `~/.terminfo` so `TERM=xterm-ghostty` works inside them.
+  The tasks don't need sudo
 
 ### Fedora sway session (`configure_sway: true`)
 - Installs sway, waybar, fuzzel, swaylock/swayidle, mako, cliphist and portals as an extra GDM session; GNOME stays as it is
